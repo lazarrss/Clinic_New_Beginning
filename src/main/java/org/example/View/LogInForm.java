@@ -23,6 +23,7 @@ public class LogInForm extends JFrame {
 
     public LogInForm(){
         initialize();
+        initializeFields();
         setVisible(true);
     }
 
@@ -35,8 +36,6 @@ public class LogInForm extends JFrame {
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setTitle("Clinic New Beginning");
-
-        initializeFields();
     }
 
     private void initializeFields() {
@@ -111,18 +110,22 @@ public class LogInForm extends JFrame {
 
 
     private void buttonsOnAction() {
-        buttonLogin.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                // ako postoji u database otvori novu formu ako ne izbaci gresku
-                String name = textFieldUsername.getText();
-                String password = passwordFieldPassword.getText();
-                if(JDBCUtils.existsInDatabase(name, password)){
-                    Utility.throwException("Bravo", "ulogovan si");
-                }else{
-                    Utility.throwException("Error", "Invalid UCIN/JMBG or name");
+        buttonLogin.addActionListener(e -> {
+            // ako postoji u database otvori novu formu ako ne izbaci gresku
+            String name = textFieldUsername.getText();
+            String password = passwordFieldPassword.getText();
+            if(JDBCUtils.existsInDatabase(name, password)){
+                try{
+                    new MainForm();
+                }catch (Exception ex){
+                    Utility.throwMessage("Error", ex.getMessage());
                 }
+            }else{
+                Utility.throwMessage("Error", "Invalid UCIN/JMBG or name");
             }
+        });
+        buttonRegister.addActionListener(e -> {
+            new SignUpForm();
         });
     }
 }

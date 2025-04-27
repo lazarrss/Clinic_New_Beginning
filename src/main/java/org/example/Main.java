@@ -1,7 +1,13 @@
 package org.example;
 
-public class Main {
+import org.example.View.LogInForm;
+
+public class Main{
     public static void main(String[] args) {
-        System.out.println("Hello world!");
+        try{
+            new LogInForm();
+        }catch (Exception ex){
+            ex.printStackTrace();
+        }
     }
 }

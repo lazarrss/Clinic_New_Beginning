@@ -1,8 +1,6 @@
 package org.example.Utils;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.Properties;
 
 public class JDBCUtils {
@@ -18,6 +16,18 @@ public class JDBCUtils {
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
-
+    }
+    public static boolean existsInDatabase(String username, String JMBG){
+        connect();
+        String query = STR."select JMBG, ime from psihoterapeut where ime = '\{username}' and JMBG = '\{JMBG}'";
+        try{
+            Statement st = connection.createStatement();
+            ResultSet rs = st.executeQuery(query);
+            if(rs.next()) return true;
+            return false;
+        }catch (Exception sqlException){
+            Utility.throwException("SQL Error", "Unknown error");
+        }
+        return false;
     }
 }

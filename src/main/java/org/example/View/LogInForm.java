@@ -57,6 +57,9 @@ public class LogInForm extends JFrame {
         buttonLogin = new JButton("Log In");
         buttonRegister = new JButton("Sign Up");
 
+        textFieldUsername.setText("Marko");
+        passwordFieldPassword.setText("2303198512345");
+
         buttonsOnAction();
 
         JPanel panel = new JPanel(new GridBagLayout());

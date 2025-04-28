@@ -1,15 +1,10 @@
-package org.example.View;
+package org.example.view.forms;
 
-import org.example.Utils.JDBCUtils;
-import org.example.Utils.Utility;
+import org.example.utils.JDBCUtils;
+import org.example.utils.Utility;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
-import java.util.Arrays;
 
 public class LogInForm extends JFrame {
     private JLabel labelTitle;

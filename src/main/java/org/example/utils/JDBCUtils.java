@@ -1,4 +1,6 @@
-package org.example.Utils;
+package org.example.utils;
+
+import org.example.view.panels.PsychotherapistsOverviewPanel;
 
 import java.sql.*;
 import java.util.Properties;
@@ -18,8 +20,8 @@ public class JDBCUtils {
         }
     }
     public static boolean existsInDatabase(String username, String JMBG){
-        String query = STR."select JMBG, ime from psihoterapeut where ime = '\{username}' and JMBG = '\{JMBG}'";
         try{
+            String query = STR."select JMBG, ime from psihoterapeut where ime = '\{username}' and JMBG = '\{JMBG}'";
             Statement st = connection.createStatement();
             ResultSet rs = st.executeQuery(query);
             return rs.next();
@@ -47,6 +49,28 @@ public class JDBCUtils {
             connection.commit();
 
             Utility.throwMessage("Success", "A new psychotherapist has been added to the database 'New Beginning'");
+        }catch (Exception ex){
+            Utility.throwMessage("Error", ex.getMessage());
+        }
+    }
+    public static void insertIntoTablePsychotherapistOverview(){
+
+        try{
+            String query = "select* from psihoterapeut";
+            Statement st = connection.createStatement();
+            ResultSet rs = st.executeQuery(query);
+            while(rs.next()){
+                int id = rs.getInt(1);
+                String name = rs.getString(2);
+                String lastname = rs.getString(3);
+                String UCIN = rs.getString(4);
+                Date DOB = rs.getDate(5);
+                String POR = rs.getString(6);
+                String phoneNumber = rs.getString(7);
+                short psychologist = rs.getShort(8);
+                PsychotherapistsOverviewPanel.addPsychotherapist(new Object[]{id, name, lastname, UCIN, DOB, POR, phoneNumber, psychologist});
+            }
+//            Utility.throwMessage("Success", "All values inserted into table");
         }catch (Exception ex){
             Utility.throwMessage("Error", ex.getMessage());
         }

@@ -1,4 +1,6 @@
-package org.example.View;
+package org.example.view.forms;
+
+import org.example.view.panels.PsychotherapistsOverviewPanel;
 
 import javax.swing.*;
 import java.awt.*;
@@ -10,11 +12,13 @@ public class MainForm extends JFrame {
     private JPanel navigationPanel;
     private JPanel contentPanel;
     private CardLayout cardLayout;
-
     private final Color NAV_BAR_COLOR = new Color(45, 62, 80); // tamnoplava
     private final Color BUTTON_COLOR = new Color(52, 73, 94); // malo svetlija plava
     private final Color BUTTON_HOVER_COLOR = new Color(93, 109, 126);
     private final Color CONTENT_BG_COLOR = Color.WHITE;
+
+    //panels
+    PsychotherapistsOverviewPanel panelPsychotherapistOverview = new PsychotherapistsOverviewPanel();
 
     public MainForm() {
         initialize();
@@ -51,14 +55,15 @@ public class MainForm extends JFrame {
     }
 
     private void initializeNavigationButtons() {
-        addButton("Pregled psihoterapeuta", "psihoterapeuti");
-        addButton("Moj profil", "profil");
-        addButton("Prijave novih klijenata", "prijaveKlijenata");
-        addButton("Održane seanse", "odrzaneSeanse");
-        addButton("Buduće seanse", "buduceSeanse");
-        addButton("Beleške i testovi", "beleskeTestovi");
-        addButton("Objavljivanje podataka", "objavljivanje");
-        addButton("Uplate i dugovanja", "uplateDugovanja");
+        addButton("Therapists", "psychotherapists");
+        addButton("Profile", "profile");
+        addButton("New Clients", "clientApplications");
+        addButton("Past Sessions", "completedSessions");
+        addButton("Upcoming Sessions", "upcomingSessions");
+        addButton("Notes & Tests", "notesTests");
+        addButton("Publish Data", "dataPublishing");
+        addButton("Payments & Debts", "paymentsDebts");
+
     }
 
     private void addButton(String title, String panelName) {
@@ -72,7 +77,7 @@ public class MainForm extends JFrame {
 
         button.addActionListener(e -> cardLayout.show(contentPanel, panelName));
 
-        // Hover efekat
+        // Hover
         button.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseEntered(MouseEvent e) {
@@ -89,17 +94,32 @@ public class MainForm extends JFrame {
     }
 
     private void initializeContentPanels() {
-        contentPanel.add(createPanelWithLabel("Pregled psihoterapeuta"), "psihoterapeuti");
-        contentPanel.add(createPanelWithLabel("Moj profil"), "profil");
-        contentPanel.add(createPanelWithLabel("Prijave novih klijenata"), "prijaveKlijenata");
-        contentPanel.add(createPanelWithLabel("Održane seanse"), "odrzaneSeanse");
-        contentPanel.add(createPanelWithLabel("Buduće seanse"), "buduceSeanse");
-        contentPanel.add(createPanelWithLabel("Beleške i testovi"), "beleskeTestovi");
-        contentPanel.add(createPanelWithLabel("Objavljivanje podataka"), "objavljivanje");
-        contentPanel.add(createPanelWithLabel("Uplate i dugovanja"), "uplateDugovanja");
+//        contentPanel.add(createPanelWithLabel("Psychotherapist Overview"), "psychotherapists");
+//        contentPanel.add(panelPsychotherapistOverview, "psychotherapist");
+        createPanelPsychotherapistOverview();
+        contentPanel.add(createPanelWithLabel("My Profile"), "profile");
+        contentPanel.add(createPanelWithLabel("New Client Applications"), "clientApplications");
+        contentPanel.add(createPanelWithLabel("Completed Sessions"), "completedSessions");
+        contentPanel.add(createPanelWithLabel("Upcoming Sessions"), "upcomingSessions");
+        contentPanel.add(createPanelWithLabel("Notes and Tests"), "notesTests");
+        contentPanel.add(createPanelWithLabel("Data Publishing"), "dataPublishing");
+        contentPanel.add(createPanelWithLabel("Payments and Debts"), "paymentsDebts");
 
-        cardLayout.show(contentPanel, "psihoterapeuti");
+        cardLayout.show(contentPanel, "psychotherapists");
+
     }
+
+    private void createPanelPsychotherapistOverview(){
+        JPanel panel = new PsychotherapistsOverviewPanel();
+        contentPanel.add(panel, "psychotherapists");
+        panel.setBackground(CONTENT_BG_COLOR);
+    }
+//    private JPanel createPanelPsychotherapistOverview(PsychotherapistsOverviewPanel sendPanel) {
+//        sendPanel.setBackground(CONTENT_BG_COLOR);
+//        contentPanel.add(sendPanel, "psychotherapists");
+//        return sendPanel;
+//    }
+
 
     private JPanel createPanelWithLabel(String text) {
         JPanel panel = new JPanel();

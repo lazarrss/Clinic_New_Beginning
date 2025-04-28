@@ -1,7 +1,6 @@
-package org.example.Utils;
+package org.example.utils;
 
 import javax.swing.*;
-import java.awt.*;
 
 public class Utility {
     public static void throwMessage(String title, String content){

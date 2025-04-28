@@ -1,15 +1,11 @@
-package org.example.View;
+package org.example.view.forms;
 
 import com.toedter.calendar.JDateChooser;
-import org.example.Utils.JDBCUtils;
-import org.w3c.dom.CDATASection;
+import org.example.utils.JDBCUtils;
 
 import javax.swing.*;
 import java.awt.*;
-import java.text.DateFormat;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.LocalDate;
 import java.util.Date;
 
 public class SignUpForm extends JFrame {

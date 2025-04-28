@@ -1,7 +1,7 @@
 package org.example;
 
-import org.example.Utils.JDBCUtils;
-import org.example.View.LogInForm;
+import org.example.utils.JDBCUtils;
+import org.example.view.forms.LogInForm;
 
 public class Main{
     public static void main(String[] args) {

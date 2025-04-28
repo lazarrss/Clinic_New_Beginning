@@ -1,10 +1,7 @@
 package org.example.view.forms;
 
 import org.example.model.Psychotherapist;
-import org.example.view.panels.CompletedSessionsPanel;
-import org.example.view.panels.NewClientApplicationPanel;
-import org.example.view.panels.PsychotherapistProfilePanel;
-import org.example.view.panels.PsychotherapistsOverviewPanel;
+import org.example.view.panels.*;
 
 import javax.swing.*;
 import java.awt.*;
@@ -33,7 +30,7 @@ public class MainForm extends JFrame {
         int screenWidth = screenSize.width;
         setSize((int) (screenWidth * 0.75), (int) (screenHeight * 0.75));
         setLocationRelativeTo(null);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setTitle("Clinic New Beginning");
 
         setLayout(new BorderLayout());
@@ -61,7 +58,7 @@ public class MainForm extends JFrame {
         addButton("New Clients", "clientApplications");
         addButton("Completed Sessions", "completedSessions");
         addButton("Upcoming Sessions", "upcomingSessions");
-        addButton("Notes & Tests", "notesTests");
+//        addButton("Notes & Tests", "notesTests");
         addButton("Publish Data", "dataPublishing");
         addButton("Payments & Debts", "paymentsDebts");
 
@@ -104,9 +101,11 @@ public class MainForm extends JFrame {
         createPanelNewClientApplication();
 //        contentPanel.add(createPanelWithLabel("Completed Sessions"), "completedSessions");
         createPanelCompletedSessions();
-        contentPanel.add(createPanelWithLabel("Upcoming Sessions"), "upcomingSessions");
-        contentPanel.add(createPanelWithLabel("Notes and Tests"), "notesTests");
-        contentPanel.add(createPanelWithLabel("Data Publishing"), "dataPublishing");
+//        contentPanel.add(createPanelWithLabel("Upcoming Sessions"), "upcomingSessions");
+        createPanelUpcomingSessions();
+//        contentPanel.add(createPanelWithLabel("Notes and Tests"), "notesTests");
+//        contentPanel.add(createPanelWithLabel("Data Publishing"), "dataPublishing");
+        createPanelDataPublish();
         contentPanel.add(createPanelWithLabel("Payments and Debts"), "paymentsDebts");
 
         cardLayout.show(contentPanel, "psychotherapists");
@@ -133,12 +132,14 @@ public class MainForm extends JFrame {
         contentPanel.add(panel, "completedSessions");
         panel.setBackground(CONTENT_BG_COLOR);
     }
-//    private JPanel createPanelPsychotherapistOverview(PsychotherapistsOverviewPanel sendPanel) {
-//        sendPanel.setBackground(CONTENT_BG_COLOR);
-//        contentPanel.add(sendPanel, "psychotherapists");
-//        return sendPanel;
-//    }
+    private void createPanelUpcomingSessions(){
+        JPanel panel = new UpcomingSessionsPanel();
+        contentPanel.add(panel, "upcomingSessions");
+        panel.setBackground(CONTENT_BG_COLOR);
+    }
+    private void createPanelDataPublish(){
 
+    }
 
     private JPanel createPanelWithLabel(String text) {
         JPanel panel = new JPanel();

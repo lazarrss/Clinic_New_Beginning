@@ -1,8 +1,6 @@
 package org.example.view.panels;
 
 import org.example.utils.JDBCUtils;
-import org.example.utils.Utility;
-import org.example.view.forms.NotesAndTestsForm;
 import org.example.view.placeholder.PlaceholderTextField;
 
 import javax.swing.*;
@@ -14,21 +12,17 @@ import java.awt.event.FocusEvent;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 
-public class CompletedSessionsPanel extends JPanel {
+public class UpcomingSessionsPanel extends JPanel {
 
     private JTable tableOverview;
     private static DefaultTableModel tableModel;
     private TableRowSorter<DefaultTableModel> rowSorter;
     private JPanel labelPanel;
     private JLabel labelTitle;
-    private JLabel labelHint;
     private JPanel panelCenter;
-    private JButton buttonDetails;
-    private JPanel panelButton;
-    private JPanel panelNorth;
 
 
-    public CompletedSessionsPanel() {
+    public UpcomingSessionsPanel() {
         initialize();
     }
 
@@ -36,25 +30,13 @@ public class CompletedSessionsPanel extends JPanel {
         setBackground(Color.WHITE);
         setLayout(new BorderLayout(10, 10));
 
-        labelPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 5, 20));
+        labelPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 20));
         labelPanel.setBackground(Color.WHITE);
-        labelTitle = new JLabel("Completed Sessions");
+        labelTitle = new JLabel("Upcoming Sessions");
         labelTitle.setFont(new Font("SansSerif", Font.BOLD, 28));
-        labelHint = new JLabel("(Click on one of the following for details)");
-        labelHint.setFont(new Font("SansaSerif", Font.PLAIN, 16));
         labelPanel.add(labelTitle);
-        labelPanel.add(labelHint);
 
-        buttonDetails = new JButton("Details");
-        panelButton = new JPanel(new FlowLayout(FlowLayout.CENTER, 5, 20));
-        panelButton.add(buttonDetails);
-        panelButton.setBackground(Color.WHITE);
-
-        panelNorth = new JPanel(new FlowLayout(FlowLayout.CENTER, 150, 20));
-        panelNorth.add(labelPanel);
-        panelNorth.add(panelButton);
-        panelNorth.setBackground(Color.WHITE);
-        add(panelNorth, BorderLayout.NORTH);
+        add(labelPanel, BorderLayout.NORTH);
 
         panelCenter = new JPanel(new BorderLayout(10, 10));
         panelCenter.setBackground(Color.WHITE);
@@ -82,7 +64,8 @@ public class CompletedSessionsPanel extends JPanel {
         tableOverview.setRowHeight(22);
         tableOverview.getTableHeader().setFont(new Font("SansSerif", Font.BOLD, 16));
 
-        JDBCUtils.insertIntoTableCompletedSeassions();
+//        JDBCUtils.insertIntoTableCompletedSeassions();
+        JDBCUtils.insertIntoTableUpcomingSessions();
 
         rowSorter = new TableRowSorter<>(tableModel);
         tableOverview.setRowSorter(rowSorter);
@@ -91,25 +74,10 @@ public class CompletedSessionsPanel extends JPanel {
         panelCenter.add(scrollPane, BorderLayout.CENTER);
 
         add(panelCenter, BorderLayout.CENTER);
-
-        buttonOnAction();
     }
 
     public static void addSession(Object[] rowData) {
         tableModel.addRow(rowData);
-    }
-    private void buttonOnAction(){
-        buttonDetails.addActionListener(e ->{
-            if(tableOverview.getSelectedRow() == -1)
-                Utility.throwMessage("Error", "Please select a row");
-            try{
-                int id = (int) tableModel.getValueAt(tableOverview.getSelectedRow(), 0); // cuvamo id
-                new NotesAndTestsForm(id);
-            }catch (Exception ex) {
-                Utility.throwMessage("Error", ex.getMessage());
-                return;
-            }
-        });
     }
 
 }

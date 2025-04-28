@@ -2,9 +2,11 @@ package org.example.utils;
 
 import jdk.jshell.execution.Util;
 import org.example.model.Psychotherapist;
+import org.example.view.forms.NotesAndTestsForm;
 import org.example.view.panels.CompletedSessionsPanel;
 import org.example.view.panels.NewClientApplicationPanel;
 import org.example.view.panels.PsychotherapistsOverviewPanel;
+import org.example.view.panels.UpcomingSessionsPanel;
 
 import java.sql.*;
 import java.util.Properties;
@@ -157,21 +159,99 @@ public class JDBCUtils {
     public static void insertIntoTableCompletedSeassions() {
         try{
 //            String query = STR."select distinct k.klijent_id, k.ime, k.prezime, k.datum_rodjenja, k.pol, k.email, k.broj_telefona from klijent k join Prijava p on p.klijent_id = k.klijent_id join seansa s on s.seansa_id = p.Seansa_seansa_id where k.klijent_id = \{Psychotherapist.getInstance().getId()}";
-            String query = "select s.* from seansa s join psihoterapeut p on p.psihoterapeut_id=s.Psihoterapeut_psihoterapeut_id where s.dan_vreme < NOW()";
+            String query = "select s.*, c.trenutna_cena from seansa s " +
+                    "join psihoterapeut p on p.psihoterapeut_id=s.Psihoterapeut_psihoterapeut_id " +
+                    "left join cena c on c.cena_id = s.Cena_cena_id " +
+                    "where s.dan_vreme < NOW() and p.psihoterapeut_id = " + Psychotherapist.getInstance().getId();
             Statement st = connection.createStatement();
             ResultSet rs = st.executeQuery(query);
             while (rs.next()){
                 int id = rs.getInt(1);
                 String dateTime = rs.getTimestamp(2).toString();
-                String lastname = rs.getString(3);
                 int duration = rs.getInt("trajanje_minuti");
-                String notes = rs.getString(5);
-                String UCIN = rs.getString(6);
-                CompletedSessionsPanel.addSession(new Object[]{id, dateTime, lastname, duration, notes, UCIN});
+                String notes = rs.getString("beleske");
+                float price = rs.getFloat("trenutna_cena");
+                CompletedSessionsPanel.addSession(new Object[]{id, dateTime, duration, notes, price});
             }
         }catch (Exception ex) {
-            ex.printStackTrace();
-//            Utility.throwMessage("SQL Error", ex.getMessage());
+//            ex.printStackTrace();
+            Utility.throwMessage("SQL Error", ex.getMessage());
+        }
+    }
+
+    public static void insertIntoTableUpcomingSessions() {
+        try{
+//            String query = STR."select distinct k.klijent_id, k.ime, k.prezime, k.datum_rodjenja, k.pol, k.email, k.broj_telefona from klijent k join Prijava p on p.klijent_id = k.klijent_id join seansa s on s.seansa_id = p.Seansa_seansa_id where k.klijent_id = \{Psychotherapist.getInstance().getId()}";
+            String query = "select s.*, c.trenutna_cena from seansa s " +
+                    "join psihoterapeut p on p.psihoterapeut_id=s.Psihoterapeut_psihoterapeut_id " +
+                    "left join cena c on c.cena_id = s.Cena_cena_id " +
+                    "where s.dan_vreme >= NOW() and p.psihoterapeut_id = " + Psychotherapist.getInstance().getId();
+            Statement st = connection.createStatement();
+            ResultSet rs = st.executeQuery(query);
+            while (rs.next()){
+                int id = rs.getInt(1);
+                String dateTime = rs.getTimestamp(2).toString();
+                int duration = rs.getInt("trajanje_minuti");
+                String notes = rs.getString("beleske");
+                if(notes == null)
+                    notes = "...";
+                float price = rs.getFloat("trenutna_cena");
+                UpcomingSessionsPanel.addSession(new Object[]{id, dateTime, duration, notes, price});
+            }
+        }catch (Exception ex) {
+//            ex.printStackTrace();
+            Utility.throwMessage("SQL Error", ex.getMessage());
+        }
+    }
+
+    public static String getNotes() {
+        try {
+            String query = STR."select s.beleske from seansa s where seansa_id = \{NotesAndTestsForm.getSeansa_id()}";
+            Statement st = connection.createStatement();
+            ResultSet rs = st.executeQuery(query);
+            if(rs.next())
+                return rs.getString("beleske");
+            else Utility.throwMessage("Error", "No results found for notes with id = " + NotesAndTestsForm.getSeansa_id());
+        }catch (Exception ex){
+            Utility.throwMessage("Error", ex.getMessage());
+        }
+
+        return "";
+    }
+
+    public static void insertIntoTableTestInfo() {
+        try{
+            String query = "select pt.naziv, rezultat from psiholoski_test pt " +
+                    "left join izrada_testa it on it.Psiholoski_test_psiholoski_test_id = pt.psiholoski_test_id " +
+                    "where it.Seansa_seansa_id = " + NotesAndTestsForm.getSeansa_id();
+            Statement st = connection.createStatement();
+            ResultSet rs = st.executeQuery(query);
+            while (rs.next()){
+                String name = rs.getString("naziv");
+                int result = rs.getInt("rezultat");
+                NotesAndTestsForm.addTest(new Object[]{name, result});
+            }
+        }catch (Exception ex){
+            Utility.throwMessage("SQL Error", ex.getMessage());
+        }
+    }
+
+    public static void insertIntoTablePublish() {
+        try {
+            String query = "select op.datum_objavljivanja, op.kome_je_objavljeno, vo.naziv from objavljivanje_podataka op " +
+                    "left join vrsta_objavljivanja vo on op.Vrsta_objavljivanja_vrsta_objavljivanja_id = vo.vrsta_objavljivanja_id " +
+                    "where op.Seansa_seansa_id = " + NotesAndTestsForm.getSeansa_id();
+            Statement st = connection.createStatement();
+            ResultSet rs = st.executeQuery(query);
+            while (rs.next()){
+                Date dateofPublish = rs.getDate("datum_objavljivanja");
+                String whoGotIt = rs.getString("kome_je_objavljeno");
+                String typeofPublish = rs.getString("naziv");
+                NotesAndTestsForm.addPublishData(new Object[]{dateofPublish, whoGotIt, typeofPublish});
+            }
+
+        }catch (Exception ex){
+            Utility.throwMessage("SQL Error", ex.getMessage());
         }
     }
 }

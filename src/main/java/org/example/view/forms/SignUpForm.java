@@ -155,7 +155,7 @@ public class SignUpForm extends JFrame {
         int screenWidth = screenSize.width;
         setSize((int) (screenWidth * 0.33), (int) (screenHeight * 0.5));
         setLocationRelativeTo(null);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setTitle("Clinic New Beginning");
     }
 }

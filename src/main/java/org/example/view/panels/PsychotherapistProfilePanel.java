@@ -136,5 +136,6 @@ public class PsychotherapistProfilePanel extends JPanel {
         textFieldPhoneNumber.setText(Psychotherapist.getInstance().getPhoneNumber());
         //checkBoxPsychologist.setText(String.valueOf(Psychotherapist.getInstance().getPsychologist()));
         checkBoxPsychologist.setSelected(Psychotherapist.getInstance().getPsychologist() == 1);
+        checkBoxPsychologist.setBackground(Color.WHITE);
     }
 }

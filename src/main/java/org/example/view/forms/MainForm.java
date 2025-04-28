@@ -1,6 +1,7 @@
 package org.example.view.forms;
 
 import org.example.model.Psychotherapist;
+import org.example.view.panels.CompletedSessionsPanel;
 import org.example.view.panels.NewClientApplicationPanel;
 import org.example.view.panels.PsychotherapistProfilePanel;
 import org.example.view.panels.PsychotherapistsOverviewPanel;
@@ -58,7 +59,7 @@ public class MainForm extends JFrame {
         addButton("Therapists", "psychotherapists");
         addButton("Profile", "profile");
         addButton("New Clients", "clientApplications");
-        addButton("Past Sessions", "completedSessions");
+        addButton("Completed Sessions", "completedSessions");
         addButton("Upcoming Sessions", "upcomingSessions");
         addButton("Notes & Tests", "notesTests");
         addButton("Publish Data", "dataPublishing");
@@ -101,7 +102,8 @@ public class MainForm extends JFrame {
         createPanelPsychotherapistProfile();
 //        contentPanel.add(createPanelWithLabel("New Client Applications"), "clientApplications");
         createPanelNewClientApplication();
-        contentPanel.add(createPanelWithLabel("Completed Sessions"), "completedSessions");
+//        contentPanel.add(createPanelWithLabel("Completed Sessions"), "completedSessions");
+        createPanelCompletedSessions();
         contentPanel.add(createPanelWithLabel("Upcoming Sessions"), "upcomingSessions");
         contentPanel.add(createPanelWithLabel("Notes and Tests"), "notesTests");
         contentPanel.add(createPanelWithLabel("Data Publishing"), "dataPublishing");
@@ -124,6 +126,11 @@ public class MainForm extends JFrame {
     private void createPanelNewClientApplication(){
         JPanel panel = new NewClientApplicationPanel();
         contentPanel.add(panel, "clientApplications");
+        panel.setBackground(CONTENT_BG_COLOR);
+    }
+    private void createPanelCompletedSessions(){
+        JPanel panel = new CompletedSessionsPanel();
+        contentPanel.add(panel, "completedSessions");
         panel.setBackground(CONTENT_BG_COLOR);
     }
 //    private JPanel createPanelPsychotherapistOverview(PsychotherapistsOverviewPanel sendPanel) {

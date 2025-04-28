@@ -2,6 +2,7 @@ package org.example.utils;
 
 import jdk.jshell.execution.Util;
 import org.example.model.Psychotherapist;
+import org.example.view.panels.CompletedSessionsPanel;
 import org.example.view.panels.NewClientApplicationPanel;
 import org.example.view.panels.PsychotherapistsOverviewPanel;
 
@@ -150,6 +151,27 @@ public class JDBCUtils {
             }
         }catch (Exception ex) {
             Utility.throwMessage("SQL Error", ex.getMessage());
+        }
+    }
+
+    public static void insertIntoTableCompletedSeassions() {
+        try{
+//            String query = STR."select distinct k.klijent_id, k.ime, k.prezime, k.datum_rodjenja, k.pol, k.email, k.broj_telefona from klijent k join Prijava p on p.klijent_id = k.klijent_id join seansa s on s.seansa_id = p.Seansa_seansa_id where k.klijent_id = \{Psychotherapist.getInstance().getId()}";
+            String query = "select s.* from seansa s join psihoterapeut p on p.psihoterapeut_id=s.Psihoterapeut_psihoterapeut_id where s.dan_vreme < NOW()";
+            Statement st = connection.createStatement();
+            ResultSet rs = st.executeQuery(query);
+            while (rs.next()){
+                int id = rs.getInt(1);
+                String dateTime = rs.getTimestamp(2).toString();
+                String lastname = rs.getString(3);
+                int duration = rs.getInt("trajanje_minuti");
+                String notes = rs.getString(5);
+                String UCIN = rs.getString(6);
+                CompletedSessionsPanel.addSession(new Object[]{id, dateTime, lastname, duration, notes, UCIN});
+            }
+        }catch (Exception ex) {
+            ex.printStackTrace();
+//            Utility.throwMessage("SQL Error", ex.getMessage());
         }
     }
 }

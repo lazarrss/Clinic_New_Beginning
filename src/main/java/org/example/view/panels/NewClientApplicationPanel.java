@@ -1,7 +1,7 @@
 package org.example.view.panels;
 
 import org.example.utils.JDBCUtils;
-import org.example.view.panels.placeholder.PlaceholderTextField;
+import org.example.view.placeholder.PlaceholderTextField;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -90,6 +90,8 @@ public class NewClientApplicationPanel extends JPanel {
                     rowSorter.setRowFilter(null);
                 } else {
                     rowSorter.setRowFilter(RowFilter.regexFilter(STR."(?i)\{text}", 1));
+//                    rowSorter.setRowFilter(RowFilter.regexFilter("(?i)" + text, 1));
+
                 }
             }
         });
@@ -115,5 +117,4 @@ public class NewClientApplicationPanel extends JPanel {
     public static void addClient(Object[] rowData) {
         tableModel.addRow(rowData);
     }
-
 }

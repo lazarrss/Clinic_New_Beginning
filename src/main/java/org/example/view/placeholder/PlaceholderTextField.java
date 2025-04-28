@@ -1,4 +1,4 @@
-package org.example.view.panels.placeholder;
+package org.example.view.placeholder;
 
 import javax.swing.*;
 import java.awt.*;

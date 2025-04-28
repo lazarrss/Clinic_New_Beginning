@@ -1,7 +1,7 @@
 package org.example.view.panels;
 
 import org.example.utils.JDBCUtils;
-import org.example.view.panels.placeholder.PlaceholderTextField;
+import org.example.view.placeholder.PlaceholderTextField;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;

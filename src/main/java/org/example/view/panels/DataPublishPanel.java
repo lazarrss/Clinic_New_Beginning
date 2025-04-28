@@ -75,7 +75,7 @@ public class DataPublishPanel extends JPanel {
                 int id = (int) tableModel.getValueAt(modelRow, 0);
 
                 try{
-                    new PublishDataForm();
+                    new PublishDataForm(id);
                 }catch (Exception ex){
                     Utility.throwMessage("Error", "Form Publish Data could not be created");
                 }

@@ -1,11 +1,15 @@
 package org.example.view.forms;
 
 import com.toedter.calendar.JDateChooser;
+import org.example.utils.JDBCUtils;
+import org.example.utils.Utility;
 
 import javax.swing.*;
 import java.awt.*;
+import java.text.SimpleDateFormat;
 
 public class PublishDataForm extends JFrame {
+    private static int session_id;
     private JPanel panelMain;
     private JLabel labelDate;
     private JLabel labelPublishedTo;
@@ -15,7 +19,8 @@ public class PublishDataForm extends JFrame {
     private JTextField textType;
     private JButton buttonInsertData;
 
-    public PublishDataForm() {
+    public PublishDataForm(int id) {
+        session_id = id;
         initializeAll();
         setVisible(true);
     }
@@ -31,7 +36,6 @@ public class PublishDataForm extends JFrame {
         panelMain.setLayout(new BoxLayout(panelMain, BoxLayout.Y_AXIS));
         panelMain.setBorder(BorderFactory.createEmptyBorder(20, 40, 20, 40));
 
-        // Date label and picker
         labelDate = new JLabel("Select Date:");
         labelDate.setFont(new Font("SansSerif", Font.PLAIN, 16));
         labelDate.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -42,10 +46,10 @@ public class PublishDataForm extends JFrame {
         dateChooserPublishDate.setFont(new Font("SansSerif", Font.PLAIN, 14));
         dateChooserPublishDate.setAlignmentX(Component.CENTER_ALIGNMENT);
         dateChooserPublishDate.setPreferredSize(new Dimension(200, 30));
+        dateChooserPublishDate.setDateFormatString("yyyy-MM-dd");
         panelMain.add(dateChooserPublishDate);
         panelMain.add(Box.createRigidArea(new Dimension(0, 20)));
 
-        // Published To label and textfield
         labelPublishedTo = new JLabel("Published To:");
         labelPublishedTo.setFont(new Font("SansSerif", Font.PLAIN, 16));
         labelPublishedTo.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -59,7 +63,6 @@ public class PublishDataForm extends JFrame {
         panelMain.add(textPublishedTo);
         panelMain.add(Box.createRigidArea(new Dimension(0, 20)));
 
-        // Type label and textfield
         labelType = new JLabel("Type:");
         labelType.setFont(new Font("SansSerif", Font.PLAIN, 16));
         labelType.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -73,19 +76,37 @@ public class PublishDataForm extends JFrame {
         panelMain.add(textType);
         panelMain.add(Box.createRigidArea(new Dimension(0, 30)));
 
-        // Insert button
         buttonInsertData = new JButton("Insert Data");
         buttonInsertData.setBackground(new Color(41, 128, 185));
         buttonInsertData.setForeground(Color.WHITE);
         buttonInsertData.setFocusPainted(false);
         buttonInsertData.setFont(new Font("SansSerif", Font.BOLD, 14));
         buttonInsertData.setAlignmentX(Component.CENTER_ALIGNMENT);
+        buttonOnAction();
 
         panelMain.add(buttonInsertData);
 
         add(panelMain);
 
-        // Set initial focus
-        textPublishedTo.requestFocusInWindow();
+//        textPublishedTo.requestFocusInWindow();
+    }
+
+    private void buttonOnAction() {
+        buttonInsertData.addActionListener(e -> {
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+            try {
+                String dateofPublish = sdf.format(dateChooserPublishDate.getDate());
+                String publishedTo = textPublishedTo.getText();
+                String typeofPublish = textType.getText();
+                JDBCUtils.insertDataPublish(dateofPublish, publishedTo, typeofPublish);
+            } catch (Exception ex) {
+                Utility.throwMessage("Error", "Please fill all fields correctly.");
+            }
+        });
+
+    }
+
+    public static int getSession_id() {
+        return session_id;
     }
 }

@@ -3,6 +3,7 @@ package org.example.utils;
 import jdk.jshell.execution.Util;
 import org.example.model.Psychotherapist;
 import org.example.view.forms.NotesAndTestsForm;
+import org.example.view.forms.PublishDataForm;
 import org.example.view.panels.*;
 
 import java.sql.*;
@@ -89,8 +90,8 @@ public class JDBCUtils {
     public static void updateUserDatabase(String name, String lastname, String UCIN, Date DOB, String POR, String phoneNumber, short psychologist) {
         try{
 
-            String sql = "UPDATE psihoterapeut SET ime = ?, prezime = ?, JMBG = ?, datum_rodjenja = ?, prebivaliste = ?, broj_telefona = ?, psiholog = ? WHERE psihoterapeut_id = '"+Psychotherapist.getInstance().getId()+"'";
-            PreparedStatement statement = connection.prepareStatement(sql);
+            String query = "UPDATE psihoterapeut SET ime = ?, prezime = ?, JMBG = ?, datum_rodjenja = ?, prebivaliste = ?, broj_telefona = ?, psiholog = ? WHERE psihoterapeut_id = '"+Psychotherapist.getInstance().getId()+"'";
+            PreparedStatement statement = connection.prepareStatement(query);
             statement.setString(1, name);
             statement.setString(2, lastname);
             statement.setString(3, UCIN);
@@ -272,6 +273,64 @@ public class JDBCUtils {
             }
         }catch (Exception ex) {
 //            ex.printStackTrace();
+            Utility.throwMessage("SQL Error", ex.getMessage());
+        }
+    }
+
+    public static void insertDataPublish(String dateofPublish, String publishedTo, String typeofPublish) {
+        try {
+            String query = "INSERT INTO objavljivanje_podataka (datum_objavljivanja, kome_je_objavljeno, Vrsta_objavljivanja_vrsta_objavljivanja_id, Seansa_seansa_id) values" +
+                    "(?, ?, ?, ?)";
+            int type_id = returnIdFromDatabase(typeofPublish);
+            PreparedStatement st = connection.prepareStatement(query);
+            java.sql.Date date = java.sql.Date.valueOf(dateofPublish);
+            st.setDate(1, date);
+            st.setString(2, publishedTo);
+            st.setInt(3, type_id);
+            st.setInt(4, PublishDataForm.getSession_id());
+            int affectedRows = st.executeUpdate();
+            if(affectedRows > 0)
+                Utility.throwMessage("Success", "Data Publish table updated successfully");
+            else Utility.throwMessage("Error", "Data Publish table could not be updated");
+        }catch (Exception ex){
+            Utility.throwMessage("SQL Error", ex.getMessage());
+        }
+    }
+
+    private static int returnIdFromDatabase(String type) {
+        try{
+            String query = "select vrsta_objavljivanja_id from vrsta_objavljivanja where naziv = '" + type + "'";
+            Statement st = connection.createStatement();
+            ResultSet rs = st.executeQuery(query);
+            int id = 0;
+            if(rs.next())
+                id = rs.getInt("vrsta_objavljivanja_id");
+            else{
+                String subquery = "select count(vrsta_objavljivanja_id) as 'IDS' from vrsta_objavljivanja;";
+                Statement newSt = connection.createStatement();
+                ResultSet newResultSet = newSt.executeQuery(subquery);
+                if(newResultSet.next())
+                    id = newResultSet.getInt("IDS") + 1;
+            }
+            insertNewTypeOfPublish(id, type);
+            return id;
+        }catch (Exception ex){
+            Utility.throwMessage("SQL Error", ex.getMessage());
+        }
+        return 0;
+    }
+
+    private static void insertNewTypeOfPublish(int id, String type) {
+        try {
+            String query = "INSERT INTO vrsta_objavljivanja (vrsta_objavljivanja_id, naziv) values (?, ?)";
+            PreparedStatement st = connection.prepareStatement(query);
+            st.setInt(1, id);
+            st.setString(2, type);
+            int affectedRows = st.executeUpdate();
+            if(affectedRows > 0)
+                Utility.throwMessage("Success", "Type of publish table updated successfully");
+            else Utility.throwMessage("Error", "Type of publish table could not be updated");
+        }catch (Exception ex){
             Utility.throwMessage("SQL Error", ex.getMessage());
         }
     }

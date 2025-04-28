@@ -46,6 +46,10 @@ public class CompletedSessionsPanel extends JPanel {
         labelPanel.add(labelHint);
 
         buttonDetails = new JButton("Details");
+        buttonDetails.setBackground(new Color(41, 128, 185));
+        buttonDetails.setForeground(Color.WHITE);
+        buttonDetails.setFocusPainted(false);
+        buttonDetails.setFont(new Font("SansSerif", Font.BOLD, 14));
         panelButton = new JPanel(new FlowLayout(FlowLayout.CENTER, 5, 20));
         panelButton.add(buttonDetails);
         panelButton.setBackground(Color.WHITE);

@@ -3,10 +3,7 @@ package org.example.utils;
 import jdk.jshell.execution.Util;
 import org.example.model.Psychotherapist;
 import org.example.view.forms.NotesAndTestsForm;
-import org.example.view.panels.CompletedSessionsPanel;
-import org.example.view.panels.NewClientApplicationPanel;
-import org.example.view.panels.PsychotherapistsOverviewPanel;
-import org.example.view.panels.UpcomingSessionsPanel;
+import org.example.view.panels.*;
 
 import java.sql.*;
 import java.util.Properties;
@@ -251,6 +248,30 @@ public class JDBCUtils {
             }
 
         }catch (Exception ex){
+            Utility.throwMessage("SQL Error", ex.getMessage());
+        }
+    }
+
+    public static void insertIntoTableSessions() {
+        try{
+            String query = "select s.*, c.trenutna_cena from seansa s " +
+                "join psihoterapeut p on p.psihoterapeut_id=s.Psihoterapeut_psihoterapeut_id " +
+                "left join cena c on c.cena_id = s.Cena_cena_id " +
+                "where p.psihoterapeut_id = " + Psychotherapist.getInstance().getId();
+            Statement st = connection.createStatement();
+            ResultSet rs = st.executeQuery(query);
+            while (rs.next()){
+                int id = rs.getInt(1);
+                String dateTime = rs.getTimestamp(2).toString();
+                int duration = rs.getInt("trajanje_minuti");
+                String notes = rs.getString("beleske");
+                if(notes == null)
+                    notes = "...";
+                float price = rs.getFloat("trenutna_cena");
+                DataPublishPanel.addSession(new Object[]{id, dateTime, duration, notes, price});
+            }
+        }catch (Exception ex) {
+//            ex.printStackTrace();
             Utility.throwMessage("SQL Error", ex.getMessage());
         }
     }

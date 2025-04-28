@@ -138,7 +138,9 @@ public class MainForm extends JFrame {
         panel.setBackground(CONTENT_BG_COLOR);
     }
     private void createPanelDataPublish(){
-
+        JPanel panel = new DataPublishPanel();
+        contentPanel.add(panel, "dataPublishing");
+        panel.setBackground(CONTENT_BG_COLOR);
     }
 
     private JPanel createPanelWithLabel(String text) {

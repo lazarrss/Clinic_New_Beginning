@@ -12,7 +12,8 @@ import java.awt.event.FocusEvent;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 
-public class PsychotherapistsOverviewPanel extends JPanel {
+public class NewClientApplicationPanel extends JPanel {
+
     private JTable tableOverview;
     private static DefaultTableModel tableModel;
     private JTextField textFieldSearch;
@@ -23,7 +24,7 @@ public class PsychotherapistsOverviewPanel extends JPanel {
     private JPanel panelSearch;
 
 
-    public PsychotherapistsOverviewPanel() {
+    public NewClientApplicationPanel() {
         initialize();
     }
 
@@ -33,7 +34,7 @@ public class PsychotherapistsOverviewPanel extends JPanel {
 
         labelPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 20));
         labelPanel.setBackground(Color.WHITE);
-        labelTitle = new JLabel("Psychotherapists");
+        labelTitle = new JLabel("New Clients");
         labelTitle.setFont(new Font("SansSerif", Font.BOLD, 28));
         labelPanel.add(labelTitle);
 
@@ -57,18 +58,17 @@ public class PsychotherapistsOverviewPanel extends JPanel {
         tableModel.addColumn("ID");
         tableModel.addColumn("First Name");
         tableModel.addColumn("Last Name");
-        tableModel.addColumn("Unique Citizen Identification Number");
         tableModel.addColumn("Date of Birth");
-        tableModel.addColumn("Place of Residence");
+        tableModel.addColumn("Gender");
+        tableModel.addColumn("Email");
         tableModel.addColumn("Phone Number");
-        tableModel.addColumn("Psychologist");
 
         tableOverview = new JTable(tableModel);
         tableOverview.setFont(new Font("SansSerif", Font.PLAIN, 14));
         tableOverview.setRowHeight(22);
         tableOverview.getTableHeader().setFont(new Font("SansSerif", Font.BOLD, 16));
 
-        JDBCUtils.insertIntoTablePsychotherapistOverview();
+        JDBCUtils.insertIntoTableNewClientApplication();
 
         rowSorter = new TableRowSorter<>(tableModel);
         tableOverview.setRowSorter(rowSorter);
@@ -112,11 +112,8 @@ public class PsychotherapistsOverviewPanel extends JPanel {
         });
     }
 
-    public static void addPsychotherapist(Object[] rowData) {
+    public static void addClient(Object[] rowData) {
         tableModel.addRow(rowData);
     }
 
-//    public void clearPsychotherapists() {
-//        tableModel.setRowCount(0);
-//    }
 }

@@ -1,6 +1,7 @@
 package org.example.view.forms;
 
 import org.example.model.Psychotherapist;
+import org.example.view.panels.NewClientApplicationPanel;
 import org.example.view.panels.PsychotherapistProfilePanel;
 import org.example.view.panels.PsychotherapistsOverviewPanel;
 
@@ -98,7 +99,8 @@ public class MainForm extends JFrame {
         createPanelPsychotherapistOverview();
 //        contentPanel.add(createPanelWithLabel("My Profile"), "profile");
         createPanelPsychotherapistProfile();
-        contentPanel.add(createPanelWithLabel("New Client Applications"), "clientApplications");
+//        contentPanel.add(createPanelWithLabel("New Client Applications"), "clientApplications");
+        createPanelNewClientApplication();
         contentPanel.add(createPanelWithLabel("Completed Sessions"), "completedSessions");
         contentPanel.add(createPanelWithLabel("Upcoming Sessions"), "upcomingSessions");
         contentPanel.add(createPanelWithLabel("Notes and Tests"), "notesTests");
@@ -117,6 +119,11 @@ public class MainForm extends JFrame {
     private void createPanelPsychotherapistProfile(){
         JPanel panel = new PsychotherapistProfilePanel();
         contentPanel.add(panel, "profile");
+        panel.setBackground(CONTENT_BG_COLOR);
+    }
+    private void createPanelNewClientApplication(){
+        JPanel panel = new NewClientApplicationPanel();
+        contentPanel.add(panel, "clientApplications");
         panel.setBackground(CONTENT_BG_COLOR);
     }
 //    private JPanel createPanelPsychotherapistOverview(PsychotherapistsOverviewPanel sendPanel) {

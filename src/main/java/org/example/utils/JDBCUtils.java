@@ -1,6 +1,8 @@
 package org.example.utils;
 
+import jdk.jshell.execution.Util;
 import org.example.model.Psychotherapist;
+import org.example.view.panels.NewClientApplicationPanel;
 import org.example.view.panels.PsychotherapistsOverviewPanel;
 
 import java.sql.*;
@@ -84,6 +86,26 @@ public class JDBCUtils {
             Utility.throwMessage("Error", ex.getMessage());
         }
     }
+    public static void updateUserDatabase(String name, String lastname, String UCIN, Date DOB, String POR, String phoneNumber, short psychologist) {
+        try{
+
+            String sql = "UPDATE psihoterapeut SET ime = ?, prezime = ?, JMBG = ?, datum_rodjenja = ?, prebivaliste = ?, broj_telefona = ?, psiholog = ? WHERE psihoterapeut_id = '"+Psychotherapist.getInstance().getId()+"'";
+            PreparedStatement statement = connection.prepareStatement(sql);
+            statement.setString(1, name);
+            statement.setString(2, lastname);
+            statement.setString(3, UCIN);
+            statement.setDate(4, DOB);
+            statement.setString(5, POR);
+            statement.setString(6, phoneNumber);
+            statement.setShort(7, psychologist);
+            int affectedRows = statement.executeUpdate();
+            if(affectedRows > 0)
+                Utility.throwMessage("Success", "Profile updated successfully");
+            else Utility.throwMessage("Error", "Profile could not be updated");
+        }catch (Exception ex){
+            Utility.throwMessage("SQL Error", ex.getMessage());
+        }
+    }
     public static void insertIntoTablePsychotherapistOverview(){
 
         try{
@@ -107,32 +129,26 @@ public class JDBCUtils {
         }
     }
 
-    public static void updateUserDatabase(String name, String lastname, String UCIN, Date DOB, String POR, String phoneNumber, short psychologist) {
+    public static void insertIntoTableNewClientApplication() {
         try{
-//            String query = "update psihoterapeut " +
-//                    "set name = '"+name+"', prezime = '"+lastname+"', JMBG = '"+UCIN+"', datum_rodjenja = '"+DOB+"', prebivaliste = '"+POR+"'," +
-//                    "broj_telefona = '"+phoneNumber+"', psiholog = '"+psychologist+"'" +
-//                    "where psihoterapeut_id = "+Psychotherapist.getInstance().getId();
-//            String query = STR."update psihoterapeut set name = '\{name}', prezime = '\{lastname}', JMBG = '\{UCIN}', datum_rodjenja = '\{DOB}', prebivaliste = '\{POR}',broj_telefona = '\{phoneNumber}', psiholog = '\{psychologist}'where psihoterapeut_id = \{Psychotherapist.getInstance().getId()}";
-//            Statement ps = connection.createStatement();
-//            ResultSet rs = ps.executeQuery(query);
-//            if(rs.next())
-//                Utility.throwMessage("Success", "Profile updated successfully");
-//            else Utility.throwMessage("Error", "Profile could not be updated");
-            String sql = "UPDATE psihoterapeut SET ime = ?, prezime = ?, JMBG = ?, datum_rodjenja = ?, prebivaliste = ?, broj_telefona = ?, psiholog = ? WHERE psihoterapeut_id = '"+Psychotherapist.getInstance().getId()+"'";
-            PreparedStatement statement = connection.prepareStatement(sql);
-            statement.setString(1, name);
-            statement.setString(2, lastname);
-            statement.setString(3, UCIN);
-            statement.setDate(4, DOB);
-            statement.setString(5, POR);
-            statement.setString(6, phoneNumber);
-            statement.setShort(7, psychologist);
-            int affectedRows = statement.executeUpdate();
-            if(affectedRows > 0)
-                Utility.throwMessage("Success", "Profile updated successfully");
-            else Utility.throwMessage("Error", "Profile could not be updated");
-        }catch (Exception ex){
+//            String query = "select distinct k.klijent_id, k.ime, k.prezime, k.datum_rodjenja, k.pol, k.email, k.broj_telefona from klijent k " +
+//                    "join Prijava p on p.klijent_id = k.klijent_id " +
+//                    "join seansa s on s.seansa_id = p.Seansa_seansa_id " +
+//                    "where k.klijent_id = " + Psychotherapist.getInstance().getId();
+            String query = STR."select distinct k.klijent_id, k.ime, k.prezime, k.datum_rodjenja, k.pol, k.email, k.broj_telefona from klijent k join Prijava p on p.klijent_id = k.klijent_id join seansa s on s.seansa_id = p.Seansa_seansa_id where k.klijent_id = \{Psychotherapist.getInstance().getId()}";
+            Statement st = connection.createStatement();
+            ResultSet rs = st.executeQuery(query);
+            while (rs.next()){
+                int id = rs.getInt(1);
+                String name = rs.getString(2);
+                String lastname = rs.getString(3);
+                Date DOB = rs.getDate(4);
+                String gender = rs.getString(5);
+                String email = rs.getString(6);
+                String phoneNumber = rs.getString(7);
+                NewClientApplicationPanel.addClient(new Object[]{id, name, lastname, DOB, gender, email, phoneNumber});
+            }
+        }catch (Exception ex) {
             Utility.throwMessage("SQL Error", ex.getMessage());
         }
     }

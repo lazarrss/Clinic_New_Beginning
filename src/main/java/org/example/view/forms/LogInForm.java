@@ -52,6 +52,9 @@ public class LogInForm extends JFrame {
         buttonLogin = new JButton("Log In");
         buttonRegister = new JButton("Sign Up");
 
+        buttonLogin.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        buttonRegister.setCursor(new Cursor(Cursor.HAND_CURSOR));
+
         textFieldUsername.setText("Marko");
         passwordFieldPassword.setText("2303198512345");
 

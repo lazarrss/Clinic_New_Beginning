@@ -1,5 +1,7 @@
 package org.example.view.forms;
 
+import org.example.model.Psychotherapist;
+import org.example.view.panels.PsychotherapistProfilePanel;
 import org.example.view.panels.PsychotherapistsOverviewPanel;
 
 import javax.swing.*;
@@ -8,7 +10,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
 public class MainForm extends JFrame {
-
+//    private Psychotherapist user;
     private JPanel navigationPanel;
     private JPanel contentPanel;
     private CardLayout cardLayout;
@@ -16,9 +18,6 @@ public class MainForm extends JFrame {
     private final Color BUTTON_COLOR = new Color(52, 73, 94); // malo svetlija plava
     private final Color BUTTON_HOVER_COLOR = new Color(93, 109, 126);
     private final Color CONTENT_BG_COLOR = Color.WHITE;
-
-    //panels
-    PsychotherapistsOverviewPanel panelPsychotherapistOverview = new PsychotherapistsOverviewPanel();
 
     public MainForm() {
         initialize();
@@ -97,7 +96,8 @@ public class MainForm extends JFrame {
 //        contentPanel.add(createPanelWithLabel("Psychotherapist Overview"), "psychotherapists");
 //        contentPanel.add(panelPsychotherapistOverview, "psychotherapist");
         createPanelPsychotherapistOverview();
-        contentPanel.add(createPanelWithLabel("My Profile"), "profile");
+//        contentPanel.add(createPanelWithLabel("My Profile"), "profile");
+        createPanelPsychotherapistProfile();
         contentPanel.add(createPanelWithLabel("New Client Applications"), "clientApplications");
         contentPanel.add(createPanelWithLabel("Completed Sessions"), "completedSessions");
         contentPanel.add(createPanelWithLabel("Upcoming Sessions"), "upcomingSessions");
@@ -112,6 +112,11 @@ public class MainForm extends JFrame {
     private void createPanelPsychotherapistOverview(){
         JPanel panel = new PsychotherapistsOverviewPanel();
         contentPanel.add(panel, "psychotherapists");
+        panel.setBackground(CONTENT_BG_COLOR);
+    }
+    private void createPanelPsychotherapistProfile(){
+        JPanel panel = new PsychotherapistProfilePanel();
+        contentPanel.add(panel, "profile");
         panel.setBackground(CONTENT_BG_COLOR);
     }
 //    private JPanel createPanelPsychotherapistOverview(PsychotherapistsOverviewPanel sendPanel) {

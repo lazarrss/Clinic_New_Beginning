@@ -106,8 +106,8 @@ public class MainForm extends JFrame {
 //        contentPanel.add(createPanelWithLabel("Notes and Tests"), "notesTests");
 //        contentPanel.add(createPanelWithLabel("Data Publishing"), "dataPublishing");
         createPanelDataPublish();
-        contentPanel.add(createPanelWithLabel("Payments and Debts"), "paymentsDebts");
-
+//        contentPanel.add(createPanelWithLabel("Payments and Debts"), "paymentsDebts");
+        createPanelPaymentsAndDebts();
         cardLayout.show(contentPanel, "psychotherapists");
 
     }
@@ -142,13 +142,10 @@ public class MainForm extends JFrame {
         contentPanel.add(panel, "dataPublishing");
         panel.setBackground(CONTENT_BG_COLOR);
     }
-
-    private JPanel createPanelWithLabel(String text) {
-        JPanel panel = new JPanel();
+    private void createPanelPaymentsAndDebts(){
+        JPanel panel = new PaymentsAndDebtsPanel();
+        contentPanel.add(panel, "paymentsDebts");
         panel.setBackground(CONTENT_BG_COLOR);
-        JLabel label = new JLabel(text);
-        label.setFont(new Font("SansSerif", Font.PLAIN, 20));
-        panel.add(label);
-        return panel;
     }
+
 }

@@ -66,8 +66,7 @@ public class JDBCUtils {
 
     public static void insertPsychotherapist(String name, String lastname, String UCIN, String DOB, String POR, String phoneNumber, String psychologist){
         try{
-            String query = "insert into psihoterapeut(ime, prezime, JMBG, datum_rodjenja, prebivaliste, broj_telefona, psiholog)" +
-                    "values (?, ?, ?, ?, ?, ?, ?)";
+            String query = "call insert_psihoterapeut(?, ?, ?, ?, ?, ?, ?);";
             PreparedStatement ps = connection.prepareStatement(query);
             connection.setAutoCommit(false);
 
@@ -83,14 +82,15 @@ public class JDBCUtils {
             connection.commit();
 
             Utility.throwMessage("Success", "A new psychotherapist has been added to the database 'New Beginning'");
-        }catch (Exception ex){
+        }catch (SQLException ex){
             Utility.throwMessage("Error", ex.getMessage());
         }
     }
     public static void updateUserDatabase(String name, String lastname, String UCIN, Date DOB, String POR, String phoneNumber, short psychologist) {
         try{
 
-            String query = "UPDATE psihoterapeut SET ime = ?, prezime = ?, JMBG = ?, datum_rodjenja = ?, prebivaliste = ?, broj_telefona = ?, psiholog = ? WHERE psihoterapeut_id = '"+Psychotherapist.getInstance().getId()+"'";
+//            String query = "UPDATE psihoterapeut SET ime = ?, prezime = ?, JMBG = ?, datum_rodjenja = ?, prebivaliste = ?, broj_telefona = ?, psiholog = ? WHERE psihoterapeut_id = ?'"+Psychotherapist.getInstance().getId()+"'";
+            String query = "call update_psihoterapeut(?, ?, ?, ?, ?, ?, ?, ?)";
             PreparedStatement statement = connection.prepareStatement(query);
             statement.setString(1, name);
             statement.setString(2, lastname);
@@ -99,6 +99,7 @@ public class JDBCUtils {
             statement.setString(5, POR);
             statement.setString(6, phoneNumber);
             statement.setShort(7, psychologist);
+            statement.setInt(8, Psychotherapist.getInstance().getId());
             int affectedRows = statement.executeUpdate();
             if(affectedRows > 0)
                 Utility.throwMessage("Success", "Profile updated successfully");
@@ -279,8 +280,7 @@ public class JDBCUtils {
 
     public static void insertDataPublish(String dateofPublish, String publishedTo, String typeofPublish) {
         try {
-            String query = "INSERT INTO objavljivanje_podataka (datum_objavljivanja, kome_je_objavljeno, Vrsta_objavljivanja_vrsta_objavljivanja_id, Seansa_seansa_id) values" +
-                    "(?, ?, ?, ?)";
+            String query = "call insert_objavljivanje_podataka (?, ?, ?, ?)";
             int type_id = returnIdFromDatabase(typeofPublish);
             PreparedStatement st = connection.prepareStatement(query);
             java.sql.Date date = java.sql.Date.valueOf(dateofPublish);
@@ -322,7 +322,7 @@ public class JDBCUtils {
 
     private static void insertNewTypeOfPublish(int id, String type) {
         try {
-            String query = "INSERT INTO vrsta_objavljivanja (vrsta_objavljivanja_id, naziv) values (?, ?)";
+            String query = "call insert_vrsta_objavljivanja (?, ?)";
             PreparedStatement st = connection.prepareStatement(query);
             st.setInt(1, id);
             st.setString(2, type);
@@ -330,6 +330,30 @@ public class JDBCUtils {
             if(affectedRows > 0)
                 Utility.throwMessage("Success", "Type of publish table updated successfully");
             else Utility.throwMessage("Error", "Type of publish table could not be updated");
+        }catch (Exception ex){
+            Utility.throwMessage("SQL Error", ex.getMessage());
+        }
+    }
+
+    public static void insertIntoTablePayments() {
+        try{
+            String query = "call debt2("+Psychotherapist.getInstance().getId()+")";
+            //PreparedStatement st = connection.prepareStatement(query);
+            //st.setInt(1, Psychotherapist.getInstance().getId());
+            Statement st = connection.createStatement();
+            ResultSet rs = st.executeQuery(query);
+            while(rs.next()){
+                String name = rs.getString("ime");
+                String phoneNumber = rs.getString("broj_telefona");
+                String purpose = rs.getString("svrha");
+                double price = rs.getDouble("iznos");
+                String payment_method = rs.getString("nacin_placanja");
+                Date dateofPayment = rs.getDate("datum_placanja");
+                String currency = rs.getString("Valuta_valuta_id");
+                String isOverdue = rs.getString("is_overdue");
+                int daysOverdue = rs.getInt("days_overdue");
+                PaymentsAndDebtsPanel.addSession(new Object[]{name, phoneNumber, purpose, price, payment_method, dateofPayment, currency, isOverdue, daysOverdue});
+            }
         }catch (Exception ex){
             Utility.throwMessage("SQL Error", ex.getMessage());
         }

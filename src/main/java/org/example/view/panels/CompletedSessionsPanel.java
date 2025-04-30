@@ -86,7 +86,7 @@ public class CompletedSessionsPanel extends JPanel {
         tableOverview.setRowHeight(22);
         tableOverview.getTableHeader().setFont(new Font("SansSerif", Font.BOLD, 16));
 
-        JDBCUtils.insertIntoTableCompletedSeassions();
+        JDBCUtils.insertIntoTableCompletedSessions();
 
         rowSorter = new TableRowSorter<>(tableModel);
         tableOverview.setRowSorter(rowSorter);

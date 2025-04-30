@@ -13,6 +13,8 @@ public class JDBCUtils {
     public static Connection connection = null;
     public static String URL = "jdbc:mysql://localhost:3306/novi_pocetak";
 
+    // todo ispravi svuda gde moze statement u preparedStatement
+
     public static void connect(){
         Properties properties = new Properties();
         properties.put("user", "root");
@@ -155,7 +157,7 @@ public class JDBCUtils {
         }
     }
 
-    public static void insertIntoTableCompletedSeassions() {
+    public static void insertIntoTableCompletedSessions() {
         try{
 //            String query = STR."select distinct k.klijent_id, k.ime, k.prezime, k.datum_rodjenja, k.pol, k.email, k.broj_telefona from klijent k join Prijava p on p.klijent_id = k.klijent_id join seansa s on s.seansa_id = p.Seansa_seansa_id where k.klijent_id = \{Psychotherapist.getInstance().getId()}";
             String query = "select s.*, c.trenutna_cena from seansa s " +
@@ -337,9 +339,9 @@ public class JDBCUtils {
 
     public static void insertIntoTablePayments() {
         try{
-            String query = "call debt2("+Psychotherapist.getInstance().getId()+")";
-            //PreparedStatement st = connection.prepareStatement(query);
-            //st.setInt(1, Psychotherapist.getInstance().getId());
+            String query = "call new_proc2("+Psychotherapist.getInstance().getId()+")";
+//            PreparedStatement st = connection.prepareStatement(query);
+//            st.setInt(1, Psychotherapist.getInstance().getId());
             Statement st = connection.createStatement();
             ResultSet rs = st.executeQuery(query);
             while(rs.next()){

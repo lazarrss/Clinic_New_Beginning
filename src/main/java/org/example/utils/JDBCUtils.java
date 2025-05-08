@@ -352,9 +352,9 @@ public class JDBCUtils {
                 String payment_method = rs.getString("nacin_placanja");
                 Date dateofPayment = rs.getDate("datum_placanja");
                 String currency = rs.getString("Valuta_valuta_id");
-                String isOverdue = rs.getString("is_overdue");
-                int daysOverdue = rs.getInt("days_overdue");
-                PaymentsAndDebtsPanel.addSession(new Object[]{name, phoneNumber, purpose, price, payment_method, dateofPayment, currency, isOverdue, daysOverdue});
+                double paymentPrice = rs.getDouble("Cena_za_uplatu");
+                String overdue = rs.getString("prekoracenje");
+                PaymentsAndDebtsPanel.addSession(new Object[]{name, phoneNumber, purpose, price, payment_method, dateofPayment, currency, paymentPrice, overdue});
             }
         }catch (Exception ex){
             Utility.throwMessage("SQL Error", ex.getMessage());

@@ -133,7 +133,7 @@ public class JDBCUtils {
 //                    "join seansa s on s.seansa_id = p.Seansa_seansa_id " +
 //                    "where k.klijent_id = " + Psychotherapist.getInstance().getId();
 //            String query = STR."select distinct k.klijent_id, k.ime, k.prezime, k.datum_rodjenja, k.pol, k.email, k.broj_telefona from klijent k join Prijava p on p.klijent_id = k.klijent_id join seansa s on s.seansa_id = p.Seansa_seansa_id where k.klijent_id = \{Psychotherapist.getInstance().getId()}";
-            String query = "select distinct k.klijent_id, k.ime, k.prezime, k.datum_rodjenja, k.pol, k.email, k.broj_telefona from klijent k join Prijava p on p.klijent_id = k.klijent_id join seansa s on s.seansa_id = p.Seansa_seansa_id where k.klijent_id = ?";
+            String query = "select distinct k.klijent_id, k.ime, k.prezime, k.datum_rodjenja, k.pol, k.email, k.broj_telefona from klijent k join Prijava p on p.klijent_id = k.klijent_id join seansa s on s.seansa_id = p.Seansa_seansa_id where s.Psihoterapeut_psihoterapeut_id = ?";
             PreparedStatement st = connection.prepareStatement(query);
             connection.setAutoCommit(false);
             st.setInt(1, Psychotherapist.getInstance().getId());
@@ -158,7 +158,7 @@ public class JDBCUtils {
     public static void insertIntoTableCompletedSessions() {
         try{
 //            String query = STR."select distinct k.klijent_id, k.ime, k.prezime, k.datum_rodjenja, k.pol, k.email, k.broj_telefona from klijent k join Prijava p on p.klijent_id = k.klijent_id join seansa s on s.seansa_id = p.Seansa_seansa_id where k.klijent_id = \{Psychotherapist.getInstance().getId()}";
-            String query = "select s.*, c.trenutna_cena from seansa s " +
+            String query = "select s.seansa_id, s.dan_vreme, s.trajanje_minuti, s.beleske, c.trenutna_cena from seansa s " +
                     "join psihoterapeut p on p.psihoterapeut_id=s.Psihoterapeut_psihoterapeut_id " +
                     "left join cena c on c.cena_id = s.Cena_cena_id " +
                     "where s.dan_vreme < NOW() and p.psihoterapeut_id = ?";

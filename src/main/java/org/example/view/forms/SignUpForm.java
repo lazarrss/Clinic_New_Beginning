@@ -144,6 +144,7 @@ public class SignUpForm extends JFrame {
             String psychologist = String.valueOf(checkBoxPsychologist.isSelected() ? 1 : 0);
 
             JDBCUtils.insertPsychotherapist(name, lastname, UCIN, DOB, POR, phoneNumber, psychologist);
+            this.dispose();
         });
     }
 

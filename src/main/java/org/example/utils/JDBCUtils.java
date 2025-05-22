@@ -370,7 +370,7 @@ public class JDBCUtils {
 
     public static void insertIntoTablePayments() {
         try{
-            String query = "call new_proc2(?)";
+            String query = "call paymentDebts(?)";
             PreparedStatement st = connection.prepareStatement(query);
             st.setInt(1, Psychotherapist.getInstance().getId());
 //            Statement st = connection.createStatement();
@@ -378,14 +378,15 @@ public class JDBCUtils {
             while(rs.next()){
                 String name = rs.getString("ime");
                 String phoneNumber = rs.getString("broj_telefona");
-                String purpose = rs.getString("svrha");
+//                String purpose = rs.getString("svrha");
+                short installment = rs.getShort("rata");
                 double price = rs.getDouble("iznos");
                 String payment_method = rs.getString("nacin_placanja");
                 Date dateofPayment = rs.getDate("datum_placanja");
                 String currency = rs.getString("Valuta_valuta_id");
                 double paymentPrice = rs.getDouble("Cena_za_uplatu");
                 String overdue = rs.getString("prekoracenje");
-                PaymentsAndDebtsPanel.addSession(new Object[]{name, phoneNumber, purpose, price, payment_method, dateofPayment, currency, paymentPrice, overdue});
+                PaymentsAndDebtsPanel.addSession(new Object[]{name, phoneNumber, installment, price, payment_method, dateofPayment, currency, paymentPrice, overdue});
             }
         }catch (Exception ex){
             Utility.throwMessage("SQL Error", ex.getMessage());

@@ -33,8 +33,8 @@ public class PaymentsAndDebtsPanel extends JPanel {
 
         tableModel = new DefaultTableModel();
         tableModel.setColumnIdentifiers(new String[]{
-                "Client Name", "Clients Phone Number", "Payment Purpose", "Amount", "Payment Method",
-                "Currency", "Payment Date", "Payment Price", "Overdue & Why"
+                "Client Name", "Clients Phone Number", "Installment", "Amount", "Payment Method",
+                "Payment Date", "Currency", "Payment Price", "Overdue & Why"
         });
 
         tablePayments = new JTable(tableModel);

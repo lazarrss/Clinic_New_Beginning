@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Apr 29, 2025 at 08:45 PM
+-- Generation Time: May 22, 2025 at 01:14 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -25,118 +25,6 @@ DELIMITER $$
 --
 -- Procedures
 --
-CREATE DEFINER=`root`@`localhost` PROCEDURE `debt1` (IN `therapist_id` INT)   BEGIN
-    DECLARE final_amount DECIMAL(10, 2);
-
-    START TRANSACTION;
-    -- Prvo izračunajte final_amount
-    SELECT 
-        CASE 
-            WHEN p.Valuta_valuta_id NOT IN ('RSD', 'EUR') THEN ROUND(c.trenutna_cena * is.novi_kurs * 1.05, 2)
-            WHEN p.Valuta_valuta_id = 'EUR' THEN ROUND(c.trenutna_cena * is.novi_kurs)
-            ELSE c.trenutna_cena
-        END
-    INTO final_amount
-    FROM Placanje p
-    LEFT JOIN Seansa s ON s.seansa_id = p.Seansa_seansa_id
-    LEFT JOIN Cena c ON s.Cena_cena_id = c.cena_id
-    LEFT JOIN istorija_promene ip on ip.Valuta_valuta_id = p.Valuta_valuta_id 
-    WHERE s.Psihoterapeut_psihoterapeut_id = therapist_id LIMIT 1; -- Limitirajte da bi dobili samo jedan rezultat
-
-    -- Sada možete koristiti final_amount u sledećem SELECT-u
-    SELECT 
-        k.ime,
-        k.broj_telefona,
-        p.svrha,
-        p.iznos,
-        p.nacin_placanja,
-        p.datum_placanja,
-        p.Valuta_valuta_id,
-        CASE 
-            WHEN p.iznos = final_amount 
-                 AND p.datum_placanja < DATE_ADD(s.dan_vreme, INTERVAL 120 MINUTE)
-            THEN 'No'
-            WHEN p.rata = 1 and p.iznos >= final_amount * 0.3 
-                 AND p.datum_placanja < DATE_ADD(s.dan_vreme, INTERVAL 120 MINUTE)
-            THEN 'No'
-            WHEN p.rata = 2 AND prva_rata.datum_placanja IS NOT NULL 
-                 AND prva_rata.datum_placanja > DATE_ADD(prva_rata.datum_placanja, INTERVAL 30 DAY)
-            THEN 'No'
-            ELSE 'Yes'
-        END AS is_overdue,
-        CASE 
-            WHEN p.datum_placanja > DATE_ADD(s.dan_vreme, INTERVAL 120 MINUTE) 
-            THEN DATEDIFF(p.datum_placanja, s.dan_vreme)
-            ELSE 0
-        END AS days_overdue
-    FROM Placanje p
-    LEFT JOIN Seansa s ON s.seansa_id = p.Seansa_seansa_id
-    LEFT JOIN Cena c ON s.Cena_cena_id = c.cena_id
-    LEFT JOIN Prijava pr ON pr.Seansa_seansa_id = s.seansa_id
-    LEFT JOIN Klijent k ON k.klijent_id = pr.klijent_id
-    LEFT JOIN Placanje prva_rata 
-    ON prva_rata.Seansa_seansa_id = p.Seansa_seansa_id AND p.rata = 1
-    WHERE s.Psihoterapeut_psihoterapeut_id = therapist_id;
-
-    COMMIT;
-END$$
-
-CREATE DEFINER=`root`@`localhost` PROCEDURE `debt2` (IN `therapist_id` INT)   BEGIN
-    DECLARE final_amount DECIMAL(10, 2);
-
-    START TRANSACTION;
-    -- Prvo izračunajte final_amount
-    SELECT 
-        CASE 
-            WHEN p.Valuta_valuta_id NOT IN ('RSD', 'EUR') THEN ROUND(c.trenutna_cena * ip.novi_kurs * 1.05, 2)
-            WHEN p.Valuta_valuta_id = 'EUR' THEN ROUND(c.trenutna_cena * ip.novi_kurs)
-            ELSE c.trenutna_cena
-        END
-    INTO final_amount
-    FROM Placanje p
-    LEFT JOIN Seansa s ON s.seansa_id = p.Seansa_seansa_id
-    LEFT JOIN Cena c ON s.Cena_cena_id = c.cena_id
-    LEFT JOIN istorija_promene ip on ip.Valuta_valuta_id = p.Valuta_valuta_id 
-    WHERE s.Psihoterapeut_psihoterapeut_id = therapist_id LIMIT 1; -- Limitirajte da bi dobili samo jedan rezultat
-
-    -- Sada možete koristiti final_amount u sledećem SELECT-u
-    SELECT 
-        k.ime,
-        k.broj_telefona,
-        p.svrha,
-        p.iznos,
-        p.nacin_placanja,
-        p.datum_placanja,
-        p.Valuta_valuta_id,
-        CASE 
-            WHEN p.iznos = final_amount 
-                 AND p.datum_placanja < DATE_ADD(s.dan_vreme, INTERVAL 120 MINUTE)
-            THEN 'No'
-            WHEN p.rata = 1 and p.iznos >= final_amount * 0.3 
-                 AND p.datum_placanja < DATE_ADD(s.dan_vreme, INTERVAL 120 MINUTE)
-            THEN 'No'
-            WHEN p.rata = 2 AND prva_rata.datum_placanja IS NOT NULL 
-                 AND p.datum_placanja > DATE_ADD(prva_rata.datum_placanja, INTERVAL 30 DAY)
-            THEN 'No'
-            ELSE 'Yes'
-        END AS is_overdue,
-        CASE 
-            WHEN p.datum_placanja > DATE_ADD(s.dan_vreme, INTERVAL 120 MINUTE) 
-            THEN DATEDIFF(p.datum_placanja, s.dan_vreme)
-            ELSE 0
-        END AS days_overdue
-    FROM Placanje p
-    LEFT JOIN Seansa s ON s.seansa_id = p.Seansa_seansa_id
-    LEFT JOIN Cena c ON s.Cena_cena_id = c.cena_id
-    LEFT JOIN Prijava pr ON pr.Seansa_seansa_id = s.seansa_id
-    LEFT JOIN Klijent k ON k.klijent_id = pr.klijent_id
-    LEFT JOIN Placanje prva_rata 
-    ON prva_rata.Seansa_seansa_id = p.Seansa_seansa_id AND p.rata = 1
-    WHERE s.Psihoterapeut_psihoterapeut_id = therapist_id;
-
-    COMMIT;
-END$$
-
 CREATE DEFINER=`root`@`localhost` PROCEDURE `insert_objavljivanje_podataka` (IN `p_datum` DATE, IN `p_kome` VARCHAR(255), IN `p_vrsta_id` INT, IN `p_seansa_id` INT)   BEGIN
     START TRANSACTION;
 
@@ -174,95 +62,76 @@ END$$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `paymentDebts` (IN `therapist_id` INT)   BEGIN
     START TRANSACTION;
-	
+
     SELECT 
         k.ime,
         k.broj_telefona,
-        p.svrha,
-        p.iznos,
+        p.rata,
+        CASE
+        	WHEN prva_rata.iznos IS NOT NULL THEN prva_rata.iznos + p.iznos
+            ELSE p.iznos
+        END AS iznos,
         p.nacin_placanja,
+        s.dan_vreme AS 'Dan seanse',
         p.datum_placanja,
         p.Valuta_valuta_id,
         CASE 
-        WHEN p.Valuta_valuta_id NOT IN ('RSD', 'EUR') THEN ROUND(c.trenutna_cena * ip.novi_kurs * 1.05, 2)
-        WHEN p.Valuta_valuta_id = 'EUR' THEN ROUND(c.trenutna_cena * ip.novi_kurs)
-        ELSE c.trenutna_cena
-    	END AS final_amount,
+            WHEN p.Valuta_valuta_id = 'RSD' THEN c.trenutna_cena
+            WHEN p.Valuta_valuta_id = 'EUR' THEN ROUND(c.trenutna_cena /
+                (SELECT MAX(ip2.novi_kurs) FROM istorija_promene ip2 
+                 WHERE ip2.Valuta_valuta_id = p.Valuta_valuta_id), 2)
+            ELSE ROUND(c.trenutna_cena / 
+                (SELECT MAX(ip2.novi_kurs) FROM istorija_promene ip2 
+                 WHERE ip2.Valuta_valuta_id = p.Valuta_valuta_id) * 1.05, 2)
+        END AS Cena_za_Uplatu,
         CASE 
-            WHEN p.iznos = final_amount 
-                 AND p.datum_placanja < DATE_ADD(s.dan_vreme, INTERVAL 120 MINUTE)
-            THEN 'No'
-            WHEN p.rata = 1 and p.iznos >= final_amount * 0.3 
-                 AND p.datum_placanja < DATE_ADD(s.dan_vreme, INTERVAL 120 MINUTE)
-            THEN 'No'
-            WHEN p.rata = 2 AND prva_rata.datum_placanja IS NOT NULL 
-     		AND prva_rata.datum_placanja > DATE_ADD(prva_rata.datum_placanja, INTERVAL 30 DAY)
-			THEN 'No'
-            ELSE 'Yes'
-        END AS is_overdue,
-        CASE 
-            WHEN p.datum_placanja > DATE_ADD(s.dan_vreme, INTERVAL 120 MINUTE) 
-            THEN DATEDIFF(p.datum_placanja, s.dan_vreme)
-            ELSE 0
-        END AS days_overdue
-        
-        
+            WHEN p.rata = 2 AND (
+                DATEDIFF(p.datum_placanja, DATE_ADD(prva_rata.datum_placanja, INTERVAL 30 DAY)) > 0
+                OR (p.iznos + prva_rata.iznos) < c.trenutna_cena
+            ) THEN 'Kasni druga rata/nedovoljno novca'
+            
+   
+
+            WHEN p.rata = 1 AND p.datum_placanja > DATE_ADD(s.dan_vreme, INTERVAL 120 MINUTE) OR p.iznos < 0.3 * CASE
+                WHEN p.Valuta_valuta_id = 'RSD' THEN c.trenutna_cena
+                WHEN p.Valuta_valuta_id = 'EUR' THEN ROUND(c.trenutna_cena /
+                    (SELECT MAX(ip2.novi_kurs) FROM istorija_promene ip2 
+                     WHERE ip2.Valuta_valuta_id = p.Valuta_valuta_id), 2)
+                ELSE ROUND(c.trenutna_cena /
+                    (SELECT MAX(ip2.novi_kurs) FROM istorija_promene ip2 
+                     WHERE ip2.Valuta_valuta_id = p.Valuta_valuta_id) * 1.05, 2) END
+                THEN 'Kasni prva rata/Nedovoljno novca'
+
+            WHEN p.rata = 0 AND p.iznos < CASE
+                WHEN p.Valuta_valuta_id = 'RSD' THEN c.trenutna_cena
+                WHEN p.Valuta_valuta_id = 'EUR' THEN ROUND(c.trenutna_cena /
+                    (SELECT MAX(ip2.novi_kurs) FROM istorija_promene ip2 
+                     WHERE ip2.Valuta_valuta_id = p.Valuta_valuta_id), 2)
+                ELSE ROUND(c.trenutna_cena /
+                    (SELECT MAX(ip2.novi_kurs) FROM istorija_promene ip2 
+                     WHERE ip2.Valuta_valuta_id = p.Valuta_valuta_id) * 1.05, 2)
+            END THEN 'Yes, manje para nego cena'
+
+             WHEN p.iznos < CASE
+                WHEN p.Valuta_valuta_id = 'RSD' THEN c.trenutna_cena
+                WHEN p.Valuta_valuta_id = 'EUR' THEN ROUND(c.trenutna_cena /
+                    (SELECT MAX(ip2.novi_kurs) FROM istorija_promene ip2 
+                     WHERE ip2.Valuta_valuta_id = p.Valuta_valuta_id), 2)
+                ELSE ROUND(c.trenutna_cena /
+                    (SELECT MAX(ip2.novi_kurs) FROM istorija_promene ip2 
+                     WHERE ip2.Valuta_valuta_id = p.Valuta_valuta_id) * 1.05, 2)
+            END THEN 'Nedovoljno novca'
+            
+            ELSE 'No'
+        END AS prekoracenje
+
     FROM Placanje p
     LEFT JOIN Seansa s ON s.seansa_id = p.Seansa_seansa_id
     LEFT JOIN Cena c ON s.Cena_cena_id = c.cena_id
     LEFT JOIN Prijava pr ON pr.Seansa_seansa_id = s.seansa_id
     LEFT JOIN Klijent k ON k.klijent_id = pr.klijent_id
-    LEFT JOIN istorija_promene ip on ip.Valuta_valuta_id = p.Valuta_valuta_id 
     LEFT JOIN Placanje prva_rata 
-    ON prva_rata.Seansa_seansa_id = p.Seansa_seansa_id AND pl.rata = 1
-    WHERE s.Psihoterapeut_psihoterapeut_id = therapist_id;
-
-    COMMIT;
-END$$
-
-CREATE DEFINER=`root`@`localhost` PROCEDURE `pregled_uplata_dugovanja` (IN `therapist_id` INT)   BEGIN
-    START TRANSACTION;
-	
-    SELECT 
-        k.ime,
-        k.broj_telefona,
-        p.svrha,
-        p.iznos,
-        p.nacin_placanja,
-        p.datum_placanja,
-        p.Valuta_valuta_id,
-        CASE 
-        WHEN p.Valuta_valuta_id NOT IN ('RSD', 'EUR') THEN ROUND(c.trenutna_cena * is.novi_kurs * 1.05, 2)
-        WHEN p.Valuta_valuta_id = 'EUR' THEN ROUND(c.trenutna_cena * is.novi_kurs)
-        ELSE c.trenutna_cena
-    	END AS final_amount,
-        CASE 
-            WHEN p.iznos = final_amount 
-                 AND p.datum_placanja < DATE_ADD(s.dan_vreme, INTERVAL 120 MINUTE)
-            THEN 'No'
-            WHEN p.rata = 1 and p.iznos >= final_amount * 0.3 
-                 AND p.datum_placanja < DATE_ADD(s.dan_vreme, INTERVAL 120 MINUTE)
-            THEN 'No'
-            WHEN p.rata = 2 AND prva_rata.datum_placanja IS NOT NULL 
-     		AND prva_rata.datum_placanja > DATE_ADD(prva_rata.datum_placanja, INTERVAL 30 DAY)
-			THEN 'No'
-            ELSE 'Yes'
-        END AS is_overdue,
-        CASE 
-            WHEN p.datum_placanja > DATE_ADD(s.dan_vreme, INTERVAL 120 MINUTE) 
-            THEN DATEDIFF(p.datum_placanja, s.dan_vreme)
-            ELSE 0
-        END AS days_overdue
-        
-        
-    FROM Placanje p
-    LEFT JOIN Seansa s ON s.seansa_id = p.Seansa_seansa_id
-    LEFT JOIN Cenaa c ON s.Cena_cena_id = c.cena_id
-    LEFT JOIN Prijava pr ON pr.Seansa_seansa_id = s.seansa_id
-    LEFT JOIN Klijent k ON k.klijent_id = pr.klijent_id
-    LEFT JOIN istorija_promene ip on ip.Valuta_valuta_id = p.Valuta_valuta_id 
-    LEFT JOIN Placanje prva_rata 
-    ON prva_rata.Seansa_seansa_id = p.Seansa_seansa_id AND pl.rata = 1
+        ON prva_rata.Seansa_seansa_id = p.Seansa_seansa_id AND prva_rata.rata = 1
     WHERE s.Psihoterapeut_psihoterapeut_id = therapist_id;
 
     COMMIT;
@@ -281,54 +150,6 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `update_psihoterapeut` (IN `p_ime` V
         broj_telefona = p_broj,
         psiholog = p_psiholog
     WHERE psihoterapeut_id = p_id;
-
-    COMMIT;
-END$$
-
-CREATE DEFINER=`root`@`localhost` PROCEDURE `uplata_i_dugovanja` (IN `therapist_id` INT)   BEGIN
-    START TRANSACTION;
-	
-    SELECT 
-        k.ime,
-        k.broj_telefona,
-        p.svrha,
-        p.iznos,
-        p.nacin_placanja,
-        p.datum_placanja,
-        p.Valuta_valuta_id,
-        CASE 
-        WHEN p.Valuta_valuta_id NOT IN ('RSD', 'EUR') THEN ROUND(c.trenutna_cena * is.novi_kurs * 1.05, 2)
-        WHEN p.Valuta_valuta_id = 'EUR' THEN ROUND(c.trenutna_cena * is.novi_kurs)
-        ELSE c.trenutna_cena
-    	END AS final_amount,
-        CASE 
-            WHEN p.iznos = final_amount 
-                 AND p.datum_placanja < DATE_ADD(s.dan_vreme, INTERVAL 120 MINUTE)
-            THEN 'No'
-            WHEN p.rata = 1 and p.iznos >= final_amount * 0.3 
-                 AND p.datum_placanja < DATE_ADD(s.dan_vreme, INTERVAL 120 MINUTE)
-            THEN 'No'
-            WHEN p.rata = 2 AND prva_rata.datum_placanja IS NOT NULL 
-     		AND prva_rata.datum_placanja > DATE_ADD(prva_rata.datum_placanja, INTERVAL 30 DAY)
-			THEN 'No'
-            ELSE 'Yes'
-        END AS is_overdue,
-        CASE 
-            WHEN p.datum_placanja > DATE_ADD(s.dan_vreme, INTERVAL 120 MINUTE) 
-            THEN DATEDIFF(p.datum_placanja, s.dan_vreme)
-            ELSE 0
-        END AS days_overdue
-        
-        
-    FROM Placanje p
-    LEFT JOIN Seansa s ON s.seansa_id = p.Seansa_seansa_id
-    LEFT JOIN Cena c ON s.Cena_cena_id = c.cena_id
-    LEFT JOIN Prijava pr ON pr.Seansa_seansa_id = s.seansa_id
-    LEFT JOIN Klijent k ON k.klijent_id = pr.klijent_id
-    LEFT JOIN istorija_promene ip on ip.Valuta_valuta_id = p.Valuta_valuta_id 
-    LEFT JOIN Placanje prva_rata 
-    ON prva_rata.Seansa_seansa_id = p.Seansa_seansa_id AND pl.rata = 1
-    WHERE s.Psihoterapeut_psihoterapeut_id = therapist_id;
 
     COMMIT;
 END$$
@@ -594,7 +415,8 @@ INSERT INTO `klijent` (`klijent_id`, `ime`, `prezime`, `datum_rodjenja`, `pol`, 
 (7, 'Stefan', 'Janković', '1999-05-11', 'M', 'stefan.jankovic@gmail.com', '0608901234'),
 (8, 'Jelena', 'Milovanović', '1993-08-05', 'Ž', 'jelena.milovanovic@yahoo.com', '0619012345'),
 (9, 'Vladimir', 'Savić', '1987-04-22', 'M', 'vladimir.savic@outlook.com', '0620123456'),
-(10, 'Katarina', 'Ilić', '1996-06-19', 'Ž', 'katarina.ilic@gmail.com', '0631234567');
+(10, 'Katarina', 'Ilić', '1996-06-19', 'Ž', 'katarina.ilic@gmail.com', '0631234567'),
+(11, 'Marko', 'Marković', '1995-08-21', 'M', 'marko@example.com', '0612343210');
 
 -- --------------------------------------------------------
 
@@ -755,7 +577,14 @@ INSERT INTO `placanje` (`placanje_id`, `svrha`, `rata`, `nacin_placanja`, `iznos
 (9, 'Terapija', 0, 'Kartica', 4100.00, '2025-04-29', 'RSD', 9),
 (10, 'Terapija', 1, 'Gotovina', 5000.00, '2025-04-29', 'RSD', 10),
 (11, 'Terapija', 2, 'Gotovina', 5000.00, '2025-04-29', 'RSD', 10),
-(12, 'Terapija', 0, 'Kartica', 8800.00, '2025-04-27', 'RSD', 18);
+(12, 'Terapija', 0, 'Kartica', 8800.00, '2025-04-27', 'RSD', 18),
+(13, 'Prva rata', 1, 'Kartica', 3000.00, '2025-04-05', 'RSD', 20),
+(14, 'Druga rata', 2, 'Gotovina', 7000.00, '2025-05-09', 'RSD', 20),
+(16, 'Terapija', 1, 'Kartica', 100.00, '2025-04-27', 'RSD', 16),
+(17, 'Terapija', 0, 'Kartica', 100.00, '2025-02-02', 'EUR', 19),
+(18, 'Terapija', 0, 'Kartica', 50.00, '2025-04-30', 'USD', 18),
+(19, 'Terapija', 0, 'Kartica', 50.00, '2025-04-30', 'CHF', 18),
+(20, 'Terapija', 0, 'Kartica', 50.00, '2025-04-30', 'JPY', 18);
 
 -- --------------------------------------------------------
 
@@ -791,7 +620,8 @@ INSERT INTO `prijava` (`prijava_id`, `posecivao_psihoterapeuta`, `opis_problema`
 (13, 1, 'Problemi sa hranjenjem i telesnom slikom.', 13, 3),
 (14, 0, 'Zavisnost od društvenih mreža.', 14, 4),
 (15, 1, 'Izražen osećaj izolovanosti i usamljenosti.', 15, 5),
-(16, 0, 'problem', 18, 3);
+(16, 0, 'problem', 18, 3),
+(17, 1, 'Anksioznost', 20, 11);
 
 -- --------------------------------------------------------
 
@@ -894,7 +724,8 @@ INSERT INTO `seansa` (`seansa_id`, `dan_vreme`, `trajanje_minuti`, `beleske`, `K
 (16, '2025-04-28 21:00:27', 45, NULL, '0101990450012', 3, 1),
 (17, '2025-05-05 18:06:48', 45, NULL, '0101990450012', 2, 5),
 (18, '2025-04-28 19:49:53', 30, 'PTSD', '0202980500015', 3, 7),
-(19, '2025-06-28 19:49:55', 60, NULL, NULL, 3, 10);
+(19, '2025-06-28 19:49:55', 60, NULL, NULL, 3, 10),
+(20, '2025-04-10 10:00:00', 60, 'Prva seansa', NULL, 3, 1);
 
 -- --------------------------------------------------------
 

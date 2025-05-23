@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: May 22, 2025 at 01:14 PM
+-- Generation Time: May 23, 2025 at 07:26 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -56,6 +56,175 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `insert_vrsta_objavljivanja` (IN `p_
 
     INSERT INTO vrsta_objavljivanja (vrsta_objavljivanja_id, naziv)
     VALUES (p_id, p_naziv);
+
+    COMMIT;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `new_proc` (IN `therapist_id` INT)   BEGIN
+    START TRANSACTION;
+    SELECT 
+        k.ime,
+        k.broj_telefona,
+        p.rata,
+        CASE
+        	WHEN prva_rata.iznos IS NOT NULL THEN prva_rata.iznos + p.iznos
+            ELSE p.iznos
+        END AS iznos,
+        p.nacin_placanja,
+        s.dan_vreme AS 'Dan seanse',
+        p.datum_placanja,
+        p.Valuta_valuta_id,
+        CASE 
+            WHEN p.Valuta_valuta_id = 'RSD' THEN c.trenutna_cena
+            WHEN p.Valuta_valuta_id = 'EUR' THEN ROUND(c.trenutna_cena /
+                (SELECT ip2.novi_kurs FROM istorija_promene ip2 
+                 WHERE ip2.Valuta_valuta_id = p.Valuta_valuta_id
+                    ORDER BY datum_promene DESC
+                    LIMIT 1), 2)
+            ELSE ROUND(c.trenutna_cena / 
+                (SELECT ip2.novi_kurs FROM istorija_promene ip2 
+                 WHERE ip2.Valuta_valuta_id = p.Valuta_valuta_id
+                    ORDER BY datum_promene DESC
+                    LIMIT 1) * 1.05, 2)
+        END AS Cena_za_Uplatu,
+        CASE 
+            WHEN p.rata = 2 AND (
+                DATEDIFF(p.datum_placanja, DATE_ADD(prva_rata.datum_placanja, INTERVAL 30 DAY)) > 0
+                OR (p.iznos + prva_rata.iznos) < c.trenutna_cena
+            ) THEN 'Kasni druga rata/nedovoljno novca'
+            
+   
+
+            WHEN p.rata = 1 AND p.datum_placanja > DATE_ADD(s.dan_vreme, INTERVAL 120 MINUTE) OR p.iznos < 0.3 * CASE
+                WHEN p.Valuta_valuta_id = 'RSD' THEN c.trenutna_cena
+                WHEN p.Valuta_valuta_id = 'EUR' THEN ROUND(c.trenutna_cena /
+                    (SELECT ip2.novi_kurs FROM istorija_promene ip2 
+                 WHERE ip2.Valuta_valuta_id = p.Valuta_valuta_id
+                    ORDER BY datum_promene DESC
+                    LIMIT 1), 2)
+                ELSE ROUND(c.trenutna_cena /
+                    (SELECT ip2.novi_kurs FROM istorija_promene ip2 
+                 WHERE ip2.Valuta_valuta_id = p.Valuta_valuta_id
+                    ORDER BY datum_promene DESC
+                    LIMIT 1) * 1.05, 2) END
+                THEN 'Kasni prva rata/Nedovoljno novca'
+
+            WHEN p.rata = 0 AND p.iznos < CASE
+                WHEN p.Valuta_valuta_id = 'RSD' THEN c.trenutna_cena
+                WHEN p.Valuta_valuta_id = 'EUR' THEN ROUND(c.trenutna_cena /
+                   (SELECT ip2.novi_kurs FROM istorija_promene ip2 
+                 WHERE ip2.Valuta_valuta_id = p.Valuta_valuta_id
+                    ORDER BY datum_promene DESC
+                    LIMIT 1), 2)
+                ELSE ROUND(c.trenutna_cena /
+                    (SELECT ip2.novi_kurs FROM istorija_promene ip2 
+                 WHERE ip2.Valuta_valuta_id = p.Valuta_valuta_id
+                    ORDER BY datum_promene DESC
+                    LIMIT 1) * 1.05, 2)
+            END THEN 'Yes, manje para nego cena'
+
+             WHEN p.iznos < CASE
+                WHEN p.Valuta_valuta_id = 'RSD' THEN c.trenutna_cena
+                WHEN p.Valuta_valuta_id = 'EUR' THEN ROUND(c.trenutna_cena /
+                    (SELECT ip2.novi_kurs FROM istorija_promene ip2 
+                 WHERE ip2.Valuta_valuta_id = p.Valuta_valuta_id
+                    ORDER BY datum_promene DESC
+                    LIMIT 1), 2)
+                ELSE ROUND(c.trenutna_cena /
+                    (SELECT ip2.novi_kurs FROM istorija_promene ip2 
+                 WHERE ip2.Valuta_valuta_id = p.Valuta_valuta_id
+                    ORDER BY datum_promene DESC
+                    LIMIT 1) * 1.05, 2)
+            END THEN 'Nedovoljno novca'
+            
+            ELSE 'No'
+        END AS prekoracenje
+
+    FROM Placanje p
+    LEFT JOIN Seansa s ON s.seansa_id = p.Seansa_seansa_id
+    LEFT JOIN Cena c ON s.Cena_cena_id = c.cena_id
+    LEFT JOIN Prijava pr ON pr.Seansa_seansa_id = s.seansa_id
+    LEFT JOIN Klijent k ON k.klijent_id = pr.klijent_id
+    LEFT JOIN Placanje prva_rata 
+        ON prva_rata.Seansa_seansa_id = p.Seansa_seansa_id AND prva_rata.rata = 1
+    WHERE s.Psihoterapeut_psihoterapeut_id = therapist_id;
+
+    COMMIT;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `new_proc2` (IN `therapist_id` INT)   BEGIN
+    START TRANSACTION;
+    SELECT 
+        k.ime,
+        k.broj_telefona,
+        p.rata,
+        CASE
+        	WHEN prva_rata.iznos IS NOT NULL THEN prva_rata.iznos + p.iznos
+            ELSE p.iznos
+        END AS iznos,
+        p.nacin_placanja,
+        s.dan_vreme AS 'Dan seanse',
+        p.datum_placanja,
+        p.Valuta_valuta_id,
+        CASE 
+            WHEN p.Valuta_valuta_id = 'RSD' THEN c.trenutna_cena
+            WHEN p.Valuta_valuta_id = 'EUR' THEN ROUND(c.trenutna_cena /
+                (SELECT ip2.novi_kurs FROM istorija_promene ip2 
+                 WHERE ip2.Valuta_valuta_id = p.Valuta_valuta_id
+                    ORDER BY datum_promene DESC
+                    LIMIT 1), 2)
+            ELSE ROUND(c.trenutna_cena / 
+                (SELECT ip2.novi_kurs FROM istorija_promene ip2 
+                 WHERE ip2.Valuta_valuta_id = p.Valuta_valuta_id
+                    ORDER BY datum_promene DESC
+                    LIMIT 1) * 1.05, 2)
+        END AS Cena_za_Uplatu,
+        CASE 
+            WHEN p.rata = 2 AND (
+                DATEDIFF(p.datum_placanja, DATE_ADD(prva_rata.datum_placanja, INTERVAL 30 DAY)) > 0
+                OR (p.iznos + prva_rata.iznos) < c.trenutna_cena
+            ) THEN 'Kasni druga rata/nedovoljno novca'
+            
+   
+
+            WHEN p.rata = 1 AND p.datum_placanja > DATE_ADD(s.dan_vreme, INTERVAL 120 MINUTE) OR p.iznos < 0.3 * CASE
+                WHEN p.Valuta_valuta_id = 'RSD' THEN c.trenutna_cena
+                WHEN p.Valuta_valuta_id = 'EUR' THEN ROUND(c.trenutna_cena /
+                    (SELECT ip2.novi_kurs FROM istorija_promene ip2 
+                 WHERE ip2.Valuta_valuta_id = p.Valuta_valuta_id
+                    ORDER BY datum_promene DESC
+                    LIMIT 1), 2)
+                ELSE ROUND(c.trenutna_cena /
+                    (SELECT ip2.novi_kurs FROM istorija_promene ip2 
+                 WHERE ip2.Valuta_valuta_id = p.Valuta_valuta_id
+                    ORDER BY datum_promene DESC
+                    LIMIT 1) * 1.05, 2) END
+                THEN 'Kasni prva rata/Nedovoljno novca'
+
+            WHEN p.rata = 0 AND p.iznos < CASE
+                WHEN p.Valuta_valuta_id = 'RSD' THEN c.trenutna_cena
+                WHEN p.Valuta_valuta_id = 'EUR' THEN ROUND(c.trenutna_cena /
+                   (SELECT ip2.novi_kurs FROM istorija_promene ip2 
+                 WHERE ip2.Valuta_valuta_id = p.Valuta_valuta_id
+                    ORDER BY datum_promene DESC
+                    LIMIT 1), 2)
+                ELSE ROUND(c.trenutna_cena /
+                    (SELECT ip2.novi_kurs FROM istorija_promene ip2 
+                 WHERE ip2.Valuta_valuta_id = p.Valuta_valuta_id
+                    ORDER BY datum_promene DESC
+                    LIMIT 1) * 1.05, 2)
+            END THEN 'Yes, manje para nego cena'
+            ELSE 'No'
+        END AS prekoracenje
+
+    FROM Placanje p
+    LEFT JOIN Seansa s ON s.seansa_id = p.Seansa_seansa_id
+    LEFT JOIN Cena c ON s.Cena_cena_id = c.cena_id
+    LEFT JOIN Prijava pr ON pr.Seansa_seansa_id = s.seansa_id
+    LEFT JOIN Klijent k ON k.klijent_id = pr.klijent_id
+    LEFT JOIN Placanje prva_rata 
+        ON prva_rata.Seansa_seansa_id = p.Seansa_seansa_id AND prva_rata.rata = 1
+    WHERE s.Psihoterapeut_psihoterapeut_id = therapist_id;
 
     COMMIT;
 END$$
@@ -451,7 +620,9 @@ INSERT INTO `objavljivanje_podataka` (`objavljivanje_podataka_id`, `datum_objavl
 (12, '2023-03-16', 'Policijska uprava: PU Zrenjanin', 2, 12),
 (13, '2021-01-24', 'Sudija: Stefan Dimitrijević', 1, 13),
 (14, '2024-02-02', 'Policijska uprava: PU Pančevo', 2, 14),
-(15, '2022-07-11', 'Sudija: Milica Đorđević', 1, 15);
+(15, '2022-07-11', 'Sudija: Milica Đorđević', 1, 15),
+(17, '2025-05-21', 'Sudija: Milica Stojanovic', 1, 15),
+(18, '2025-05-08', 'Sudija: Milica Stojanovic', 1, 3);
 
 -- --------------------------------------------------------
 
@@ -676,14 +847,15 @@ CREATE TABLE `psihoterapeut` (
 INSERT INTO `psihoterapeut` (`psihoterapeut_id`, `ime`, `prezime`, `JMBG`, `datum_rodjenja`, `prebivaliste`, `broj_telefona`, `psiholog`) VALUES
 (1, 'Miloš', 'Petrović', '0101980123456', '1980-01-01', 'Beograd', '0612345678', 1),
 (2, 'Ana', 'Jovanović', '1502199012345', '1990-02-15', 'Novi Sad', '0623456789', 1),
-(3, 'Marko', 'Nikolic', '2303198512345', '1985-03-23', 'Nis', '0634567892', 0),
+(3, 'Marko', 'Nikolic', '2303198512345', '1985-03-23', 'Niš', '0634567892', 1),
 (4, 'Ivana', 'Simić', '0704199312345', '1993-04-07', 'Kragujevac', '0645678901', 1),
 (5, 'Stefan', 'Lukić', '1205199212345', '1992-05-12', 'Subotica', '0656789012', 1),
 (6, 'Jelena', 'Milinković', '2506198912345', '1989-06-25', 'Zrenjanin', '0667890123', 0),
 (7, 'Aleksandar', 'Đorđević', '3012198412345', '1984-12-30', 'Čačak', '0608901234', 1),
 (8, 'Milica', 'Stanković', '0807199512345', '1995-07-08', 'Pančevo', '0619012345', 1),
 (9, 'Vladimir', 'Vasić', '1610198712345', '1987-10-16', 'Sombor', '0620123456', 0),
-(10, 'Katarina', 'Matić', '2208199812345', '1998-08-22', 'Kruševac', '0631234567', 1);
+(10, 'Katarina', 'Matić', '2208199812345', '1998-08-22', 'Kruševac', '0631234567', 1),
+(15, 'Milica', 'Mitrovic', '3003004715071', '2004-03-30', 'Bg', '065', 1);
 
 -- --------------------------------------------------------
 
@@ -1115,13 +1287,13 @@ ALTER TABLE `vrsta_objavljivanja`
 -- AUTO_INCREMENT for table `objavljivanje_podataka`
 --
 ALTER TABLE `objavljivanje_podataka`
-  MODIFY `objavljivanje_podataka_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
+  MODIFY `objavljivanje_podataka_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=22;
 
 --
 -- AUTO_INCREMENT for table `psihoterapeut`
 --
 ALTER TABLE `psihoterapeut`
-  MODIFY `psihoterapeut_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
+  MODIFY `psihoterapeut_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=17;
 
 --
 -- AUTO_INCREMENT for table `vrsta_objavljivanja`

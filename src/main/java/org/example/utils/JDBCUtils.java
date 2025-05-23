@@ -346,7 +346,7 @@ public class JDBCUtils {
             connection.commit();
             return id;
         }catch (Exception ex){
-            Utility.throwMessage("SQL Error", ex.getMessage());
+            Utility.throwMessage("SQL Error returnidfromdatabase", ex.getMessage());
         }
         return 0;
     }
@@ -364,13 +364,13 @@ public class JDBCUtils {
             else Utility.throwMessage("Error", "Type of publish table could not be updated");
             connection.commit();
         }catch (Exception ex){
-            Utility.throwMessage("SQL Error", ex.getMessage());
+            Utility.throwMessage("SQL Error insertnewtype", ex.getMessage());
         }
     }
 
     public static void insertIntoTablePayments() {
         try{
-            String query = "call paymentDebts(?)";
+            String query = "call new_proc2(?)";
             PreparedStatement st = connection.prepareStatement(query);
             st.setInt(1, Psychotherapist.getInstance().getId());
 //            Statement st = connection.createStatement();

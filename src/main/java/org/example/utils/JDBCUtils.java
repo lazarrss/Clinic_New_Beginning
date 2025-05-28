@@ -13,8 +13,6 @@ public class JDBCUtils {
     public static Connection connection = null;
     public static String URL = "jdbc:mysql://localhost:3306/novi_pocetak";
 
-    // todo ispravi svuda gde moze statement u preparedStatement
-
     public static void connect(){
         Properties properties = new Properties();
         properties.put("user", "root");
@@ -370,7 +368,7 @@ public class JDBCUtils {
 
     public static void insertIntoTablePayments() {
         try{
-            String query = "call new_proc2(?)";
+            String query = "call new_proc(?)";
             PreparedStatement st = connection.prepareStatement(query);
             st.setInt(1, Psychotherapist.getInstance().getId());
 //            Statement st = connection.createStatement();
